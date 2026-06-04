@@ -9,15 +9,9 @@
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0f0f13;
-      color: #e8e8f0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px 60px;
+      background: #0f0f13; color: #e8e8f0; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; padding: 40px 20px 60px;
     }
-
     .container { width: 100%; max-width: 920px; }
 
     header { text-align: center; margin-bottom: 28px; }
@@ -28,11 +22,11 @@
     .conn-status.err { color: #ef4444; }
     .conn-status.ok  { color: #4ade80; }
 
-    /* TOTAL */
-    .total-section {
-      background: #1a1a24; border: 1px solid #2a2a38; border-radius: 20px;
-      padding: 28px 32px; margin-bottom: 28px;
-    }
+    .section-title { font-size: 1.1rem; font-weight: 700; color: #fff; letter-spacing: .02em; margin-bottom: 14px; text-transform: uppercase; }
+    .section-title small { display:block; text-transform:none; letter-spacing:0; font-weight:400; color:#6b6b80; font-size:.78rem; margin-top:3px; }
+
+    /* GLOBAL TOTAL */
+    .total-section { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 20px; padding: 26px 32px; margin-bottom: 30px; }
     .total-labels { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
     .total-amount { font-size: 2.1rem; font-weight: 700; color: #fff; }
     .total-amount .unit { font-size: 1.1rem; color: #6b6b80; margin-left: 2px; }
@@ -46,28 +40,17 @@
 
     /* PARTICIPANTS GRID */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
-
-    .card {
-      background: #1a1a24; border: 1px solid #2a2a38; border-radius: 18px;
-      padding: 20px; display: flex; flex-direction: column; gap: 14px;
-    }
+    .card { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
     .card-head { display: flex; align-items: center; gap: 14px; }
-    .avatar {
-      width: 58px; height: 58px; border-radius: 50%; flex-shrink: 0; cursor: pointer;
-      object-fit: cover; border: 2px solid #2a2a38; background-size: cover; background-position: center;
-      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.3rem;
-      color: #0f0f13; position: relative; transition: border-color .2s; user-select: none;
-    }
-    .avatar:hover { border-color: #4ade80; }
-    .avatar .cam {
-      position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-radius: 50%;
-      background: #4ade80; color: #052e16; font-size: 11px; display: flex; align-items: center; justify-content: center;
-      border: 2px solid #1a1a24;
-    }
+    .avatar { width: 58px; height: 58px; border-radius: 50%; flex-shrink: 0; cursor: pointer; position: relative; user-select: none; }
+    .avatar-clip { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border: 2px solid #2a2a38; transition: border-color .2s; background: #14141c; }
+    .avatar:hover .avatar-clip { border-color: #4ade80; }
+    .avatar .letter { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.3rem; color: #0f0f13; }
+    .avatar .avatar-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+    .avatar .cam { position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-radius: 50%; background: #4ade80; color: #052e16; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 2px solid #1a1a24; z-index: 3; }
     .card-head .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .card-head .name { font-size: 1.05rem; font-weight: 700; color: #fff; }
     .card-head .amount { font-size: 1.35rem; font-weight: 700; color: #4ade80; }
-
     .mini-bar { background: #2a2a38; border-radius: 999px; height: 10px; overflow: hidden; }
     .mini-fill { background: linear-gradient(90deg, #16a34a, #4ade80); height: 100%; width: 0%; transition: width .5s cubic-bezier(.4,0,.2,1); }
     .mini-pct { font-size: .72rem; color: #6b6b80; }
@@ -93,47 +76,129 @@
     .hist::-webkit-scrollbar { width: 4px; }
     .hist::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 4px; }
     .hist-empty { font-size: .8rem; color: #3a3a50; text-align: center; padding: 6px 0; }
-    .move {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #22222e; border-radius: 8px; padding: 6px 10px; font-size: .85rem; animation: fadeIn .2s ease;
-    }
+    .move { display: flex; align-items: center; justify-content: space-between; background: #22222e; border-radius: 8px; padding: 6px 10px; font-size: .85rem; animation: fadeIn .2s ease; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+    .move .lbl { color:#c0c0d0; display:flex; align-items:center; gap:7px; }
+    .move .dotmini { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
     .move .val { font-weight: 700; }
     .move .val.up { color: #4ade80; }
     .move .val.down { color: #f59e0b; }
     .move .del { background: none; border: none; color: #3a3a50; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 0 0 8px; transition: color .15s; }
     .move .del:hover { color: #ef4444; }
 
+    /* DIVIDER + CLASSIC */
+    .divider { height: 1px; background: #2a2a38; margin: 46px 0 26px; }
+    .classic-section { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 20px; padding: 28px 32px; }
+    .classic-head { text-align: center; margin-bottom: 22px; }
+    .classic-head h2 { font-size: 1.6rem; font-weight: 700; color: #fff; }
+    .classic-head h2 span { color: #4ade80; }
+    .classic-head p { margin-top: 5px; color: #6b6b80; font-size: .88rem; }
+
+    .cbar-wrapper { background: #2a2a38; border-radius: 999px; height: 28px; overflow: hidden; position: relative; }
+    .cbar-fill { height: 100%; display: flex; border-radius: 999px; overflow: hidden; min-width: 0; }
+    .cbar-green { background: linear-gradient(90deg, #16a34a, #4ade80); height: 100%; width: 0%; transition: width .5s cubic-bezier(.4,0,.2,1); }
+    .cbar-gray  { background: linear-gradient(90deg, #52525b, #a1a1aa); height: 100%; width: 0%; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+    .cstats { display: flex; gap: 12px; margin-top: 18px; }
+    .cstat { flex: 1; background: #22222e; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+    .cstat .lab { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6b6b80; }
+    .cstat .v { font-size: 1.15rem; font-weight: 700; }
+    .cstat .v.green { color: #4ade80; }
+    .cstat .v.gray  { color: #a1a1aa; }
+    .cstat .v.white { color: #fff; }
+
+    .cadd { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+    .add-card { background: #14141c; border: 1px solid #2a2a38; border-radius: 14px; padding: 16px; }
+    .add-card h3 { font-size: .95rem; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .add-card .desc { font-size: .76rem; color: #6b6b80; margin-bottom: 12px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dot.green { background: #4ade80; }
+    .dot.gray  { background: #a1a1aa; }
+
     footer { margin-top: 30px; text-align: center; color: #3a3a50; font-size: .8rem; }
+
+    @media (max-width: 560px) { .cadd { grid-template-columns: 1fr; } .cstats { flex-wrap: wrap; } .cstat { min-width: calc(50% - 6px); } }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Reto <span>comprar una casa</span></h1>
-      <p>Meta común entre los 5 — cualquiera con el link puede actualizar su tablero</p>
+      <p>Cada participante: meta 300.000€ · objetivo global 1.500.000€ · cualquiera con el link puede actualizar</p>
       <div class="conn-status" id="conn-status"></div>
     </header>
 
+    <!-- BARRA GLOBAL -->
+    <div class="section-title">Goal global<small>Cómputo global de los 5 — objetivo 1.500.000€ (300.000€ × 5)</small></div>
     <div class="total-section">
       <div class="total-labels">
         <div class="total-amount" id="total-amount">0<span class="unit">€</span></div>
-        <div class="total-goal">Meta: <strong>300.000€</strong></div>
+        <div class="total-goal">Objetivo global: <strong>1.500.000€</strong></div>
       </div>
       <div class="bar-wrapper">
         <div class="bar-green" id="total-bar"></div>
         <span class="bar-percent" id="total-pct">0%</span>
       </div>
-      <div class="total-left">Faltan <strong id="total-left">300.000€</strong></div>
+      <div class="total-left">Faltan <strong id="total-left">1.500.000€</strong></div>
     </div>
 
+    <!-- TABLEROS INDIVIDUALES -->
+    <div class="section-title">Tableros individuales<small>Cada uno hacia su meta de 300.000€</small></div>
     <div class="grid" id="grid"></div>
 
-    <footer>Reto comprar una casa · objetivo 300.000€ · datos compartidos en tiempo real</footer>
+    <!-- ===== SECCIÓN APARTE: TABLERO CLÁSICO RECIBIDO / PENDIENTE ===== -->
+    <div class="divider"></div>
+    <div class="classic-section">
+      <div class="classic-head">
+        <h2>Reto <span>500€</span> · recibido / pendiente</h2>
+        <p>Tablero clásico: recibido (verde) + pendiente (gris) en una sola barra · se puede sumar y restar</p>
+      </div>
+
+      <div class="cbar-wrapper">
+        <div class="cbar-fill">
+          <div class="cbar-green" id="cbar-green"></div>
+          <div class="cbar-gray"  id="cbar-gray"></div>
+        </div>
+        <span class="bar-percent" id="cbar-pct">0%</span>
+      </div>
+
+      <div class="cstats">
+        <div class="cstat"><span class="lab">Recibido</span><span class="v green" id="c-received">0€</span></div>
+        <div class="cstat"><span class="lab">Pendiente</span><span class="v gray" id="c-pending">0€</span></div>
+        <div class="cstat"><span class="lab">Restante</span><span class="v white" id="c-left">500€</span></div>
+      </div>
+
+      <div class="cadd">
+        <div class="add-card">
+          <h3><span class="dot green"></span>Dinero recibido</h3>
+          <div class="desc">Cobrado y en tu cuenta</div>
+          <div class="input-row">
+            <input id="cin-received" type="number" min="0" step="0.01" placeholder="€ importe">
+            <button class="btn btn-sub" id="csub-received" onclick="addClassic('received',-1)" title="Restar">−</button>
+            <button class="btn btn-add" id="cadd-received" onclick="addClassic('received',1)" title="Sumar">+</button>
+          </div>
+        </div>
+        <div class="add-card">
+          <h3><span class="dot gray"></span>Dinero pendiente</h3>
+          <div class="desc">Acordado pero no cobrado aún</div>
+          <div class="input-row">
+            <input id="cin-pending" type="number" min="0" step="0.01" placeholder="€ importe">
+            <button class="btn btn-sub" id="csub-pending" onclick="addClassic('pending',-1)" title="Restar">−</button>
+            <button class="btn btn-add" id="cadd-pending" onclick="addClassic('pending',1)" title="Sumar">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hist" id="c-hist"></div>
+    </div>
+
+    <footer>Reto comprar una casa · 5 × 300.000€ = 1.500.000€ · datos compartidos en tiempo real</footer>
   </div>
 
   <script>
-    const GOAL = 300000;
+    const GOAL = 300000;            // meta por persona
+    const GLOBAL_GOAL = GOAL * 5;   // 1.500.000€ (goal global)
+    const GOAL_CLASSIC = 500;       // tablero clásico de abajo
     const DB = 'https://reto-500-default-rtdb.firebaseio.com';
     const PEOPLE = [
       { id: 'andres', name: 'Andrés', color: '#4ade80' },
@@ -143,8 +208,9 @@
       { id: 'arturo', name: 'Arturo', color: '#a78bfa' }
     ];
 
-    let moves = {};   // { id: { key: {amount} } }
-    let photos = {};  // { id: dataURL }
+    let moves = {};      // { id: { key: {amount} } }
+    let photos = {};     // { id: dataURL }
+    let classic = {};    // { key: {type:'received'|'pending', amount} }
     const busy = {};
 
     const fmt = n => Number(n || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 });
@@ -160,49 +226,40 @@
       return Object.keys(m).reduce((s, k) => s + Number(m[k].amount || 0), 0);
     }
 
+    // ---------- Tableros individuales ----------
     function buildCards() {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = PEOPLE.map(p => `
+      document.getElementById('grid').innerHTML = PEOPLE.map(p => `
         <div class="card">
           <div class="card-head">
-            <div class="avatar" id="avatar-${p.id}" style="background:${p.color}" onclick="pickPhoto('${p.id}')" title="Cambiar foto">
-              <span id="avatar-letter-${p.id}">${p.name[0]}</span>
+            <div class="avatar" id="avatar-${p.id}" onclick="pickPhoto('${p.id}')" title="Cambiar foto">
+              <div class="avatar-clip">
+                <span class="letter" id="avatar-letter-${p.id}" style="background-color:${p.color}">${p.name[0]}</span>
+                <img class="avatar-img" id="img-${p.id}" alt="">
+              </div>
               <span class="cam">+</span>
             </div>
             <input type="file" id="file-${p.id}" accept="image/*" style="display:none" onchange="handlePhoto('${p.id}', this)">
-            <div class="who">
-              <span class="name">${p.name}</span>
-              <span class="amount" id="amount-${p.id}">0€</span>
-            </div>
+            <div class="who"><span class="name">${p.name}</span><span class="amount" id="amount-${p.id}">0€</span></div>
           </div>
-
           <div>
             <div class="mini-bar"><div class="mini-fill" id="fill-${p.id}"></div></div>
             <div class="mini-pct" id="pct-${p.id}">0% de 300.000€</div>
           </div>
-
           <div class="input-row">
             <input id="input-${p.id}" type="number" min="0" step="0.01" placeholder="€ importe">
             <button class="btn btn-sub" id="sub-${p.id}" onclick="addMove('${p.id}', -1)" title="Restar">−</button>
             <button class="btn btn-add" id="add-${p.id}" onclick="addMove('${p.id}', 1)" title="Sumar">+</button>
           </div>
-
           <div class="hist" id="hist-${p.id}"></div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
     function renderPhoto(id) {
-      const av = document.getElementById('avatar-' + id);
+      const img = document.getElementById('img-' + id);
       const letter = document.getElementById('avatar-letter-' + id);
-      if (!av) return;
-      if (photos[id]) {
-        av.style.backgroundImage = 'url(' + photos[id] + ')';
-        if (letter) letter.style.display = 'none';
-      } else {
-        av.style.backgroundImage = '';
-        if (letter) letter.style.display = '';
-      }
+      if (!img) return;
+      if (photos[id]) { img.src = photos[id]; img.style.display = 'block'; if (letter) letter.style.display = 'none'; }
+      else { img.removeAttribute('src'); img.style.display = 'none'; if (letter) letter.style.display = ''; }
     }
 
     function render() {
@@ -218,25 +275,18 @@
         const m = moves[p.id] || {};
         const keys = Object.keys(m).sort((a, b) => (a < b ? 1 : -1));
         const hist = document.getElementById('hist-' + p.id);
-        if (keys.length === 0) {
-          hist.innerHTML = '<div class="hist-empty">Sin movimientos</div>';
-        } else {
-          hist.innerHTML = keys.map(k => {
-            const a = Number(m[k].amount || 0);
-            const up = a >= 0;
-            return `<div class="move">
-              <span class="val ${up ? 'up' : 'down'}">${up ? '+' : '−'}${fmt(Math.abs(a))}€</span>
-              <button class="del" onclick="deleteMove('${p.id}','${k}')" title="Eliminar">×</button>
-            </div>`;
-          }).join('');
-        }
+        hist.innerHTML = keys.length === 0 ? '<div class="hist-empty">Sin movimientos</div>' : keys.map(k => {
+          const a = Number(m[k].amount || 0), up = a >= 0;
+          return `<div class="move"><span class="val ${up?'up':'down'}">${up?'+':'−'}${fmt(Math.abs(a))}€</span>
+            <button class="del" onclick="deleteMove('${p.id}','${k}')" title="Eliminar">×</button></div>`;
+        }).join('');
       });
 
-      const pctTotal = Math.min((total / GOAL) * 100, 100);
+      const pctTotal = Math.min((total / GLOBAL_GOAL) * 100, 100);
       document.getElementById('total-amount').innerHTML = fmt(total) + '<span class="unit">€</span>';
       document.getElementById('total-bar').style.width = pctTotal + '%';
       document.getElementById('total-pct').textContent = (pctTotal < 1 && total > 0 ? pctTotal.toFixed(2) : Math.round(pctTotal)) + '%';
-      document.getElementById('total-left').textContent = fmt(Math.max(0, GOAL - total)) + '€';
+      document.getElementById('total-left').textContent = fmt(Math.max(0, GLOBAL_GOAL - total)) + '€';
     }
 
     async function fetchMoves(silent) {
@@ -244,11 +294,8 @@
         const res = await fetch(DB + '/moves.json', { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         moves = (await res.json()) || {};
-        render();
-        setStatus('', '');
-      } catch (e) {
-        if (!silent) setStatus('⚠ No se pudo conectar con la base de datos', 'err');
-      }
+        render(); setStatus('', '');
+      } catch (e) { if (!silent) setStatus('⚠ No se pudo conectar con la base de datos', 'err'); }
     }
 
     async function fetchPhotos() {
@@ -264,19 +311,11 @@
       if (busy[id]) return;
       const input = document.getElementById('input-' + id);
       let amount = parseFloat(input.value);
-      if (!amount || amount <= 0) {
-        input.classList.remove('error'); void input.offsetWidth; input.classList.add('error');
-        input.focus(); setTimeout(() => input.classList.remove('error'), 600); return;
-      }
-      if (sign < 0) {
-        const t = personTotal(id);
-        amount = Math.min(amount, t);
-        if (amount <= 0) { input.value = ''; return; }
-      }
+      if (!amount || amount <= 0) { shake(input); return; }
+      if (sign < 0) { amount = Math.min(amount, personTotal(id)); if (amount <= 0) { input.value=''; return; } }
       const value = sign < 0 ? -amount : amount;
       busy[id] = true;
-      document.getElementById('add-' + id).disabled = true;
-      document.getElementById('sub-' + id).disabled = true;
+      document.getElementById('add-' + id).disabled = true; document.getElementById('sub-' + id).disabled = true;
       setStatus('Guardando…', '');
       try {
         const res = await fetch(DB + '/moves/' + id + '.json', {
@@ -284,34 +323,29 @@
           body: JSON.stringify({ amount: Math.round(value * 100) / 100 })
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        input.value = '';
-        await fetchMoves();
+        input.value = ''; await fetchMoves();
         setStatus('Guardado ✓', 'ok'); setTimeout(() => setStatus('', ''), 1200);
-      } catch (e) {
-        setStatus('⚠ No se pudo guardar', 'err');
-      } finally {
-        busy[id] = false;
-        document.getElementById('add-' + id).disabled = false;
-        document.getElementById('sub-' + id).disabled = false;
-      }
+      } catch (e) { setStatus('⚠ No se pudo guardar', 'err'); }
+      finally { busy[id] = false; document.getElementById('add-' + id).disabled = false; document.getElementById('sub-' + id).disabled = false; }
     }
 
     async function deleteMove(id, key) {
-      if (busy[id]) return;
-      busy[id] = true;
+      if (busy[id]) return; busy[id] = true;
       try {
         const res = await fetch(DB + '/moves/' + id + '/' + key + '.json', { method: 'DELETE' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         await fetchMoves();
-      } catch (e) {
-        setStatus('⚠ No se pudo eliminar', 'err');
-      } finally {
-        busy[id] = false;
-      }
+      } catch (e) { setStatus('⚠ No se pudo eliminar', 'err'); }
+      finally { busy[id] = false; }
     }
 
-    function pickPhoto(id) { document.getElementById('file-' + id).click(); }
+    function shake(input) {
+      input.classList.remove('error'); void input.offsetWidth; input.classList.add('error');
+      input.focus(); setTimeout(() => input.classList.remove('error'), 600);
+    }
 
+    // ---------- Foto ----------
+    function pickPhoto(id) { document.getElementById('file-' + id).click(); }
     function handlePhoto(id, inputEl) {
       const file = inputEl.files && inputEl.files[0];
       if (!file) return;
@@ -319,39 +353,125 @@
       reader.onload = ev => {
         const img = new Image();
         img.onload = async () => {
-          const max = 256;
-          let { width, height } = img;
-          if (width > height && width > max) { height = height * max / width; width = max; }
-          else if (height > max) { width = width * max / height; height = max; }
-          const canvas = document.createElement('canvas');
-          canvas.width = width; canvas.height = height;
-          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          const dataURL = canvas.toDataURL('image/jpeg', 0.7);
+          // Recorte cuadrado centrado (estilo Instagram) + redimensionado
+          const size = 256;
+          const side = Math.min(img.width, img.height);
+          const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+          const canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+          const dataURL = canvas.toDataURL('image/jpeg', 0.85);
           photos[id] = dataURL; renderPhoto(id);
           setStatus('Subiendo foto…', '');
           try {
             const res = await fetch(DB + '/photos/' + id + '.json', { method: 'PUT', body: JSON.stringify(dataURL) });
             if (!res.ok) throw new Error('HTTP ' + res.status);
             setStatus('Foto guardada ✓', 'ok'); setTimeout(() => setStatus('', ''), 1200);
-          } catch (e) {
-            setStatus('⚠ No se pudo subir la foto', 'err');
-          }
+          } catch (e) { setStatus('⚠ No se pudo subir la foto', 'err'); }
         };
         img.src = ev.target.result;
       };
-      reader.readAsDataURL(file);
-      inputEl.value = '';
+      reader.readAsDataURL(file); inputEl.value = '';
     }
 
+    // ---------- Tablero clásico (recibido / pendiente) ----------
+    function classicTotals() {
+      let received = 0, pending = 0;
+      Object.keys(classic).forEach(k => {
+        const e = classic[k]; const a = Number(e.amount || 0);
+        if (e.type === 'received') received += a; else if (e.type === 'pending') pending += a;
+      });
+      return { received, pending };
+    }
+
+    function renderClassic() {
+      const { received, pending } = classicTotals();
+      const total = received + pending;
+      const pctGreen = Math.min((received / GOAL_CLASSIC) * 100, 100);
+      const pctGray  = Math.min((pending  / GOAL_CLASSIC) * 100, Math.max(0, 100 - pctGreen));
+      const pctTotal = Math.min((total    / GOAL_CLASSIC) * 100, 100);
+
+      document.getElementById('cbar-green').style.width = pctGreen + '%';
+      document.getElementById('cbar-gray').style.width  = pctGray + '%';
+      document.getElementById('cbar-pct').textContent   = Math.round(pctTotal) + '%';
+      document.getElementById('c-received').textContent = fmt(received) + '€';
+      document.getElementById('c-pending').textContent  = fmt(pending) + '€';
+      document.getElementById('c-left').textContent     = fmt(Math.max(0, GOAL_CLASSIC - total)) + '€';
+
+      const keys = Object.keys(classic).sort((a, b) => (a < b ? 1 : -1));
+      const hist = document.getElementById('c-hist');
+      hist.innerHTML = keys.length === 0 ? '<div class="hist-empty">Sin movimientos</div>' : keys.map(k => {
+        const e = classic[k]; const a = Number(e.amount || 0); const up = a >= 0;
+        const isRec = e.type === 'received';
+        return `<div class="move">
+          <span class="lbl"><span class="dotmini" style="background:${isRec?'#4ade80':'#a1a1aa'}"></span>${isRec?'Recibido':'Pendiente'}</span>
+          <span style="display:flex;align-items:center">
+            <span class="val ${up?'up':'down'}">${up?'+':'−'}${fmt(Math.abs(a))}€</span>
+            <button class="del" onclick="deleteClassic('${k}')" title="Eliminar">×</button>
+          </span></div>`;
+      }).join('');
+    }
+
+    async function fetchClassic(silent) {
+      try {
+        const res = await fetch(DB + '/classic.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        classic = (await res.json()) || {};
+        renderClassic(); setStatus('', '');
+      } catch (e) { if (!silent) setStatus('⚠ No se pudo conectar con la base de datos', 'err'); }
+    }
+
+    async function addClassic(type, sign) {
+      const bkey = 'classic-' + type;
+      if (busy[bkey]) return;
+      const input = document.getElementById('cin-' + type);
+      let amount = parseFloat(input.value);
+      if (!amount || amount <= 0) { shake(input); return; }
+      if (sign < 0) {
+        const tot = type === 'received' ? classicTotals().received : classicTotals().pending;
+        amount = Math.min(amount, tot);
+        if (amount <= 0) { input.value = ''; return; }
+      }
+      const value = sign < 0 ? -amount : amount;
+      busy[bkey] = true;
+      document.getElementById('cadd-' + type).disabled = true; document.getElementById('csub-' + type).disabled = true;
+      setStatus('Guardando…', '');
+      try {
+        const res = await fetch(DB + '/classic.json', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, amount: Math.round(value * 100) / 100 })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        input.value = ''; await fetchClassic();
+        setStatus('Guardado ✓', 'ok'); setTimeout(() => setStatus('', ''), 1200);
+      } catch (e) { setStatus('⚠ No se pudo guardar', 'err'); }
+      finally { busy[bkey] = false; document.getElementById('cadd-' + type).disabled = false; document.getElementById('csub-' + type).disabled = false; }
+    }
+
+    async function deleteClassic(key) {
+      if (busy['classic-del']) return; busy['classic-del'] = true;
+      try {
+        const res = await fetch(DB + '/classic/' + key + '.json', { method: 'DELETE' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        await fetchClassic();
+      } catch (e) { setStatus('⚠ No se pudo eliminar', 'err'); }
+      finally { busy['classic-del'] = false; }
+    }
+
+    // ---------- Init ----------
     buildCards();
     PEOPLE.forEach(p => {
       document.getElementById('input-' + p.id).addEventListener('keydown', e => { if (e.key === 'Enter') addMove(p.id, 1); });
     });
-    fetchMoves();
+    document.getElementById('cin-received').addEventListener('keydown', e => { if (e.key === 'Enter') addClassic('received', 1); });
+    document.getElementById('cin-pending').addEventListener('keydown', e => { if (e.key === 'Enter') addClassic('pending', 1); });
+
+    function refreshAll(silent) { fetchMoves(silent); fetchClassic(true); }
+    refreshAll(false);
     fetchPhotos();
-    setInterval(() => fetchMoves(true), 6000);
+    setInterval(() => refreshAll(true), 6000);
     setInterval(fetchPhotos, 60000);
-    window.addEventListener('focus', () => { fetchMoves(true); fetchPhotos(); });
+    window.addEventListener('focus', () => { refreshAll(true); fetchPhotos(); });
   </script>
 </body>
 </html>
