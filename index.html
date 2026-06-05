@@ -39,8 +39,8 @@
     .total-left strong { color: #4ade80; }
 
     /* PARTICIPANTS GRID */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
-    .card { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+    .card { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
     .card-head { display: flex; align-items: center; gap: 14px; }
     .avatar { width: 58px; height: 58px; border-radius: 50%; flex-shrink: 0; cursor: pointer; position: relative; user-select: none; }
     .avatar-clip { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border: 2px solid #2a2a38; transition: border-color .2s; background: #14141c; }
@@ -71,8 +71,11 @@
     .btn:disabled { opacity: .45; cursor: default; transform: none; }
     .btn-add { background: #4ade80; color: #052e16; }
     .btn-sub { background: #3a3a48; color: #fff; }
+    .btn-sm { font-size: .85rem; padding: 8px 12px; }
+    .btn-burn { background: #7f1d1d; color: #fecaca; font-size: .85rem; width: 100%; }
 
     .hist { display: flex; flex-direction: column; gap: 5px; max-height: 132px; overflow-y: auto; padding-right: 2px; }
+    .hist.sm { max-height: 100px; }
     .hist::-webkit-scrollbar { width: 4px; }
     .hist::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 4px; }
     .hist-empty { font-size: .8rem; color: #3a3a50; text-align: center; padding: 6px 0; }
@@ -85,6 +88,27 @@
     .move .val.down { color: #f59e0b; }
     .move .del { background: none; border: none; color: #3a3a50; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 0 0 8px; transition: color .15s; }
     .move .del:hover { color: #ef4444; }
+
+    /* PROFILE SUB-BLOCKS (caja fuerte / generado / trading) */
+    .blk { border-top: 1px solid #2a2a38; padding-top: 12px; display: flex; flex-direction: column; gap: 9px; }
+    .subh { font-size: .82rem; font-weight: 700; color: #a0a0b8; display: flex; align-items: center; gap: 6px; }
+    .subh b { color: #4ade80; }
+    .cf-goal { margin-left: auto; font-size: .72rem; font-weight: 400; color: #6b6b80; cursor: pointer; user-select: none; white-space: nowrap; }
+    .cf-goal b { color: #a0a0b8; font-weight: 700; }
+    .cf-goal:hover { color: #a0a0b8; }
+
+    /* TRADING */
+    .tr-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .tr-cur { font-size: 1.4rem; font-weight: 700; color: #a1a1aa; }
+    .tr-cur.pos { color: #4ade80; } .tr-cur.neg { color: #ef4444; }
+    .tr-phase { font-size: .72rem; color: #6b6b80; text-align: right; }
+    .tr-bar { position: relative; height: 22px; background: #2a2a38; border-radius: 999px; overflow: hidden; }
+    .tr-fill { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; transition: left .4s, width .4s; }
+    .tr-mark { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,.18); }
+    .tr-mark.ph { background: rgba(74,222,128,.6); }
+    .tr-legend { font-size: .65rem; color: #3a3a50; display: flex; justify-content: space-between; }
+
+    footer { margin-top: 30px; text-align: center; color: #3a3a50; font-size: .8rem; }
 
     /* DIVIDER + CLASSIC */
     .divider { height: 1px; background: #2a2a38; margin: 46px 0 26px; }
@@ -127,8 +151,6 @@
     .day-sq.empty .m { color: #3a3a50; }
     .day-sq.today { border-color: #a1a1aa; }
 
-    footer { margin-top: 30px; text-align: center; color: #3a3a50; font-size: .8rem; }
-
     @media (max-width: 560px) { .cadd { grid-template-columns: minmax(0, 1fr); } .cstats { flex-wrap: wrap; } .cstat { min-width: calc(50% - 6px); } }
   </style>
 </head>
@@ -136,16 +158,16 @@
   <div class="container">
     <header>
       <h1>Reto <span>comprar una casa</span></h1>
-      <p>Cada participante: meta 300.000€ · objetivo global 1.500.000€ · cualquiera con el link puede actualizar</p>
+      <p>Cada perfil tiene su caja fuerte con objetivo propio · cualquiera con el link puede actualizar</p>
       <div class="conn-status" id="conn-status"></div>
     </header>
 
     <!-- BARRA GLOBAL -->
-    <div class="section-title">Goal global<small>Cómputo global de los 5 — objetivo 1.500.000€ (300.000€ × 5)</small></div>
+    <div class="section-title">Caja fuerte global<small>Suma de las cajas fuertes de los 5 · objetivo = suma de los objetivos personales</small></div>
     <div class="total-section">
       <div class="total-labels">
         <div class="total-amount" id="total-amount">0<span class="unit">€</span></div>
-        <div class="total-goal">Objetivo global: <strong>1.500.000€</strong></div>
+        <div class="total-goal">Objetivo: <strong id="total-goal-amount">1.500.000€</strong></div>
       </div>
       <div class="bar-wrapper">
         <div class="bar-green" id="total-bar"></div>
@@ -155,10 +177,10 @@
     </div>
 
     <!-- TABLEROS INDIVIDUALES -->
-    <div class="section-title">Tableros individuales<small>Cada uno hacia su meta de 300.000€</small></div>
+    <div class="section-title">Perfiles<small>Caja fuerte (con objetivo propio) + dinero generado al día</small></div>
     <div class="grid" id="grid"></div>
 
-    <!-- ===== SECCIÓN APARTE: TABLERO CLÁSICO RECIBIDO / PENDIENTE ===== -->
+    <!-- ===== SECCIÓN APARTE: TABLERO CLÁSICO RECIBIDO / PENDIENTE (RETO 500€) ===== -->
     <div class="divider"></div>
     <div class="classic-section">
       <div class="classic-head">
@@ -209,13 +231,12 @@
       </div>
     </div>
 
-    <footer>Reto comprar una casa · 5 × 300.000€ = 1.500.000€ · datos compartidos en tiempo real</footer>
+    <footer>Reto comprar una casa · caja fuerte y generado por perfil · el reto de 500€ va aparte · datos compartidos en tiempo real</footer>
   </div>
 
   <script>
-    const GOAL = 300000;            // meta por persona
-    const GLOBAL_GOAL = GOAL * 5;   // 1.500.000€ (goal global)
-    const GOAL_CLASSIC = 500;       // tablero clásico de abajo
+    const DEFAULT_GOAL = 300000;    // objetivo por defecto de cada caja fuerte
+    const GOAL_CLASSIC = 500;       // tablero clásico de abajo (reto 500€)
     const DB = 'https://reto-500-default-rtdb.firebaseio.com';
     const PEOPLE = [
       { id: 'andres', name: 'Andrés', color: '#4ade80' },
@@ -224,16 +245,26 @@
       { id: 'jose',   name: 'José',   color: '#fbbf24' },
       { id: 'arturo', name: 'Arturo', color: '#a78bfa' }
     ];
+    const TRADERS = ['julian', 'jorge']; // perfiles con barra de trading
 
-    let moves = {};      // { id: { key: {amount} } }
-    let photos = {};     // { id: dataURL }
-    let classic = {};    // { key: {type:'received'|'pending', amount} }
+    let moves = {};       // caja fuerte: { id: { key: {amount} } }
+    let photos = {};      // { id: dataURL }
+    let goals = {};       // { id: objetivoPersonal }
+    let generated = {};   // generado diario: { id: { key: {amount, day} } }
+    let trading = {};     // { id: { current, log: { key: {pct,day}|{burned,day} } } }
+    let classic = {};     // reto 500€: { key: {type, amount, day} }
     const busy = {};
 
     const fmt = n => Number(n || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 });
     const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     const ymd = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const dayLabel = ds => { const p = (ds || '').split('-'); return p.length === 3 ? (Number(p[2]) + ' ' + MESES[Number(p[1]) - 1]) : ''; };
     const START_PENDING = new Date(2026, 5, 5); // 5 de junio de 2026 (inicio del historial diario)
+    const PHASE_TARGET = { 1: 8, 2: 5 };  // fondeo: Fase 1 → +8% · Fase 2 → +5%
+    const TR_MIN = -8;                     // límite de pérdida (ambas fases)
+    const trPos = (pct, target) => (Math.max(TR_MIN, Math.min(target, Number(pct) || 0)) - TR_MIN) / (target - TR_MIN) * 100;
+    const goalOf = id => { const v = goals[id]; return (v != null && Number(v) > 0) ? Number(v) : DEFAULT_GOAL; };
+    const nameOf = id => { const p = PEOPLE.find(x => x.id === id); return p ? p.name : id; };
 
     function setStatus(text, kind) {
       const el = document.getElementById('conn-status');
@@ -245,8 +276,17 @@
       const m = moves[id] || {};
       return Object.keys(m).reduce((s, k) => s + Number(m[k].amount || 0), 0);
     }
+    function genTotal(id) {
+      const g = generated[id] || {};
+      return Object.keys(g).reduce((s, k) => s + Number(g[k].amount || 0), 0);
+    }
 
-    // ---------- Tableros individuales ----------
+    function shake(input) {
+      input.classList.remove('error'); void input.offsetWidth; input.classList.add('error');
+      input.focus(); setTimeout(() => input.classList.remove('error'), 600);
+    }
+
+    // ---------- Construir tarjetas ----------
     function buildCards() {
       document.getElementById('grid').innerHTML = PEOPLE.map(p => `
         <div class="card">
@@ -261,16 +301,47 @@
             <input type="file" id="file-${p.id}" accept="image/*" style="display:none" onchange="handlePhoto('${p.id}', this)">
             <div class="who"><span class="name">${p.name}</span><span class="amount" id="amount-${p.id}">0€</span></div>
           </div>
-          <div>
+
+          <div class="blk" style="border-top:none;padding-top:0">
+            <div class="subh">🔒 Caja fuerte<span class="cf-goal" id="goal-${p.id}" onclick="editGoal('${p.id}')" title="Editar objetivo">Objetivo: <b>—</b> ✎</span></div>
             <div class="mini-bar"><div class="mini-fill" id="fill-${p.id}"></div></div>
-            <div class="mini-pct" id="pct-${p.id}">0% de 300.000€</div>
+            <div class="mini-pct" id="pct-${p.id}">0%</div>
+            <div class="input-row">
+              <input id="input-${p.id}" type="number" min="0" step="0.01" placeholder="€ guardar">
+              <button class="btn btn-sub" id="sub-${p.id}" onclick="addMove('${p.id}', -1)" title="Restar">−</button>
+              <button class="btn btn-add" id="add-${p.id}" onclick="addMove('${p.id}', 1)" title="Sumar">+</button>
+            </div>
+            <div class="hist sm" id="hist-${p.id}"></div>
           </div>
-          <div class="input-row">
-            <input id="input-${p.id}" type="number" min="0" step="0.01" placeholder="€ importe">
-            <button class="btn btn-sub" id="sub-${p.id}" onclick="addMove('${p.id}', -1)" title="Restar">−</button>
-            <button class="btn btn-add" id="add-${p.id}" onclick="addMove('${p.id}', 1)" title="Sumar">+</button>
+
+          <div class="blk">
+            <div class="subh">📈 Generado · total <b id="gentotal-${p.id}">0€</b></div>
+            <div class="input-row">
+              <input id="genin-${p.id}" type="number" min="0" step="0.01" placeholder="€ generado hoy">
+              <button class="btn btn-add btn-sm" onclick="addGenerated('${p.id}')" title="Añadir generado">Generé</button>
+            </div>
+            <div class="hist sm" id="ghist-${p.id}"></div>
           </div>
-          <div class="hist" id="hist-${p.id}"></div>
+
+          ${TRADERS.includes(p.id) ? `
+          <div class="blk">
+            <div class="subh">💹 Cuenta fondeada (trading)</div>
+            <div class="tr-head">
+              <span class="tr-cur" id="trcur-${p.id}">0%</span>
+              <span class="tr-phase" id="trphase-${p.id}">Fase 1 de 2 · objetivo +8%</span>
+            </div>
+            <div class="tr-bar">
+              <div class="tr-fill" id="trfill-${p.id}"></div>
+              <div class="tr-mark" id="trzero-${p.id}"></div>
+            </div>
+            <div class="tr-legend"><span id="trlo-${p.id}">-8%</span><span id="trhi-${p.id}">obj +8%</span></div>
+            <div class="input-row">
+              <input id="trin-${p.id}" type="number" step="0.01" placeholder="% actual hoy">
+              <button class="btn btn-add btn-sm" onclick="setTrading('${p.id}')" title="Registrar %">Registrar</button>
+            </div>
+            <button class="btn btn-burn btn-sm" onclick="burnTrading('${p.id}')">🔥 Quemé la cuenta</button>
+            <div class="hist sm" id="thist-${p.id}"></div>
+          </div>` : ''}
         </div>`).join('');
     }
 
@@ -282,15 +353,19 @@
       else { img.removeAttribute('src'); img.style.display = 'none'; if (letter) letter.style.display = ''; }
     }
 
+    // ---------- Caja fuerte + global ----------
     function render() {
+      const sumGoals = PEOPLE.reduce((s, p) => s + goalOf(p.id), 0);
       let total = 0;
       PEOPLE.forEach(p => {
-        const t = personTotal(p.id);
-        total += t;
-        const pct = Math.min((t / GOAL) * 100, 100);
+        const t = personTotal(p.id); total += t;
+        const g = goalOf(p.id);
+        const pct = Math.min((t / g) * 100, 100);
         document.getElementById('amount-' + p.id).textContent = fmt(t) + '€';
         document.getElementById('fill-' + p.id).style.width = pct + '%';
-        document.getElementById('pct-' + p.id).textContent = (pct < 1 && t > 0 ? pct.toFixed(1) : Math.round(pct)) + '% de 300.000€';
+        document.getElementById('pct-' + p.id).textContent = (pct < 1 && t > 0 ? pct.toFixed(1) : Math.round(pct)) + '% de ' + fmt(g) + '€';
+        const goalEl = document.getElementById('goal-' + p.id);
+        if (goalEl) goalEl.innerHTML = 'Objetivo: <b>' + fmt(g) + '€</b> ✎';
 
         const m = moves[p.id] || {};
         const keys = Object.keys(m).sort((a, b) => (a < b ? 1 : -1));
@@ -302,13 +377,65 @@
         }).join('');
       });
 
-      const pctTotal = Math.min((total / GLOBAL_GOAL) * 100, 100);
+      const pctTotal = Math.min((total / sumGoals) * 100, 100);
       document.getElementById('total-amount').innerHTML = fmt(total) + '<span class="unit">€</span>';
       document.getElementById('total-bar').style.width = pctTotal + '%';
       document.getElementById('total-pct').textContent = (pctTotal < 1 && total > 0 ? pctTotal.toFixed(2) : Math.round(pctTotal)) + '%';
-      document.getElementById('total-left').textContent = fmt(Math.max(0, GLOBAL_GOAL - total)) + '€';
+      document.getElementById('total-goal-amount').textContent = fmt(sumGoals) + '€';
+      document.getElementById('total-left').textContent = fmt(Math.max(0, sumGoals - total)) + '€';
     }
 
+    function renderGenerated(id) {
+      const g = generated[id] || {};
+      const tEl = document.getElementById('gentotal-' + id); if (tEl) tEl.textContent = fmt(genTotal(id)) + '€';
+      const keys = Object.keys(g).sort((a, b) => (a < b ? 1 : -1));
+      const h = document.getElementById('ghist-' + id); if (!h) return;
+      h.innerHTML = keys.length === 0 ? '<div class="hist-empty">Sin generado aún</div>' : keys.map(k => {
+        const e = g[k];
+        return `<div class="move"><span class="lbl">${dayLabel(e.day)}</span>
+          <span style="display:flex;align-items:center"><span class="val up">+${fmt(e.amount)}€</span>
+          <button class="del" onclick="deleteGenerated('${id}','${k}')" title="Eliminar">×</button></span></div>`;
+      }).join('');
+    }
+
+    function renderTrading(id) {
+      const t = trading[id] || {};
+      const funded = !!t.funded;
+      const phase = Number(t.phase || 1);
+      const target = PHASE_TARGET[phase] || 8;
+      const c = Math.max(TR_MIN, Math.min(target, Number(t.current || 0)));
+      const curEl = document.getElementById('trcur-' + id); if (!curEl) return;
+      curEl.textContent = (c > 0 ? '+' : '') + (Math.round(c * 100) / 100) + '%';
+      curEl.className = 'tr-cur ' + (c > 0 ? 'pos' : (c < 0 ? 'neg' : ''));
+      const phEl = document.getElementById('trphase-' + id);
+      if (funded) phEl.textContent = '✅ Cuenta fondeada';
+      else if (c <= TR_MIN) phEl.textContent = '🔥 Límite -8% · cuenta perdida';
+      else phEl.textContent = 'Fase ' + phase + ' de 2 · objetivo +' + target + '%';
+      document.getElementById('trhi-' + id).textContent = 'obj +' + target + '%';
+
+      const fill = document.getElementById('trfill-' + id);
+      const zero = trPos(0, target), pos = trPos(c, target);
+      if (c >= 0) { fill.style.left = zero + '%'; fill.style.width = (pos - zero) + '%'; fill.style.background = 'linear-gradient(90deg,#16a34a,#4ade80)'; }
+      else { fill.style.left = pos + '%'; fill.style.width = (zero - pos) + '%'; fill.style.background = 'linear-gradient(90deg,#ef4444,#f59e0b)'; }
+      const zEl = document.getElementById('trzero-' + id); if (zEl) zEl.style.left = zero + '%';
+
+      const log = t.log || {};
+      const keys = Object.keys(log).sort((a, b) => (a < b ? 1 : -1));
+      const h = document.getElementById('thist-' + id);
+      h.innerHTML = keys.length === 0 ? '<div class="hist-empty">Sin registros</div>' : keys.map(k => {
+        const e = log[k];
+        let val;
+        if (e.burned) val = '<span class="val down">🔥 cuenta quemada</span>';
+        else if (e.pass) val = '<span class="val up">✅ Fase ' + e.pass + ' superada</span>';
+        else if (e.funded) val = '<span class="val up">🏆 cuenta fondeada</span>';
+        else { const v = Number(e.pct || 0); val = `<span class="val ${v>=0?'up':'down'}">${v>0?'+':''}${v}%</span>`; }
+        return `<div class="move"><span class="lbl">${dayLabel(e.day)}</span>
+          <span style="display:flex;align-items:center">${val}
+          <button class="del" onclick="deleteTradingLog('${id}','${k}')" title="Eliminar">×</button></span></div>`;
+      }).join('');
+    }
+
+    // ---------- Fetch ----------
     async function fetchMoves(silent) {
       try {
         const res = await fetch(DB + '/moves.json', { cache: 'no-store' });
@@ -317,22 +444,26 @@
         render(); setStatus('', '');
       } catch (e) { if (!silent) setStatus('⚠ No se pudo conectar con la base de datos', 'err'); }
     }
-
+    async function fetchGoals() {
+      try { const res = await fetch(DB + '/goals.json', { cache: 'no-store' }); if (!res.ok) return; goals = (await res.json()) || {}; render(); } catch (e) {}
+    }
+    async function fetchGenerated() {
+      try { const res = await fetch(DB + '/generated.json', { cache: 'no-store' }); if (!res.ok) return; generated = (await res.json()) || {}; PEOPLE.forEach(p => renderGenerated(p.id)); } catch (e) {}
+    }
+    async function fetchTrading() {
+      try { const res = await fetch(DB + '/trading.json', { cache: 'no-store' }); if (!res.ok) return; trading = (await res.json()) || {}; TRADERS.forEach(renderTrading); } catch (e) {}
+    }
     async function fetchPhotos() {
-      try {
-        const res = await fetch(DB + '/photos.json', { cache: 'no-store' });
-        if (!res.ok) return;
-        photos = (await res.json()) || {};
-        PEOPLE.forEach(p => renderPhoto(p.id));
-      } catch (e) {}
+      try { const res = await fetch(DB + '/photos.json', { cache: 'no-store' }); if (!res.ok) return; photos = (await res.json()) || {}; PEOPLE.forEach(p => renderPhoto(p.id)); } catch (e) {}
     }
 
+    // ---------- Caja fuerte: añadir/quitar ----------
     async function addMove(id, sign) {
       if (busy[id]) return;
       const input = document.getElementById('input-' + id);
       let amount = parseFloat(input.value);
       if (!amount || amount <= 0) { shake(input); return; }
-      if (sign < 0) { amount = Math.min(amount, personTotal(id)); if (amount <= 0) { input.value=''; return; } }
+      if (sign < 0) { amount = Math.min(amount, personTotal(id)); if (amount <= 0) { input.value = ''; return; } }
       const value = sign < 0 ? -amount : amount;
       busy[id] = true;
       document.getElementById('add-' + id).disabled = true; document.getElementById('sub-' + id).disabled = true;
@@ -348,20 +479,100 @@
       } catch (e) { setStatus('⚠ No se pudo guardar', 'err'); }
       finally { busy[id] = false; document.getElementById('add-' + id).disabled = false; document.getElementById('sub-' + id).disabled = false; }
     }
-
     async function deleteMove(id, key) {
       if (busy[id]) return; busy[id] = true;
-      try {
-        const res = await fetch(DB + '/moves/' + id + '/' + key + '.json', { method: 'DELETE' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        await fetchMoves();
-      } catch (e) { setStatus('⚠ No se pudo eliminar', 'err'); }
-      finally { busy[id] = false; }
+      try { const res = await fetch(DB + '/moves/' + id + '/' + key + '.json', { method: 'DELETE' }); if (!res.ok) throw new Error('HTTP ' + res.status); await fetchMoves(); }
+      catch (e) { setStatus('⚠ No se pudo eliminar', 'err'); } finally { busy[id] = false; }
     }
 
-    function shake(input) {
-      input.classList.remove('error'); void input.offsetWidth; input.classList.add('error');
-      input.focus(); setTimeout(() => input.classList.remove('error'), 600);
+    // ---------- Objetivo personal ----------
+    function editGoal(id) {
+      const v = prompt('Objetivo de la caja fuerte de ' + nameOf(id) + ' (€):', goalOf(id));
+      if (v === null) return;
+      const n = parseFloat(String(v).replace(/\./g, '').replace(',', '.'));
+      if (!(n > 0)) { setStatus('⚠ Objetivo inválido', 'err'); setTimeout(() => setStatus('', ''), 1500); return; }
+      setGoal(id, Math.round(n));
+    }
+    async function setGoal(id, val) {
+      try {
+        const res = await fetch(DB + '/goals/' + id + '.json', { method: 'PUT', body: JSON.stringify(val) });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        await fetchGoals();
+        setStatus('Objetivo actualizado ✓', 'ok'); setTimeout(() => setStatus('', ''), 1200);
+      } catch (e) { setStatus('⚠ No se pudo guardar el objetivo', 'err'); }
+    }
+
+    // ---------- Generado (solo recibido, NO suma a la caja fuerte) ----------
+    async function addGenerated(id) {
+      const bkey = 'gen-' + id; if (busy[bkey]) return;
+      const input = document.getElementById('genin-' + id);
+      const amount = parseFloat(input.value);
+      if (!amount || amount <= 0) { shake(input); return; }
+      busy[bkey] = true; setStatus('Guardando…', '');
+      try {
+        const res = await fetch(DB + '/generated/' + id + '.json', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: Math.round(amount * 100) / 100, day: ymd(new Date()) })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        input.value = ''; await fetchGenerated();
+        setStatus('Generado guardado ✓', 'ok'); setTimeout(() => setStatus('', ''), 1200);
+      } catch (e) { setStatus('⚠ No se pudo guardar', 'err'); }
+      finally { busy[bkey] = false; }
+    }
+    async function deleteGenerated(id, key) {
+      const bkey = 'gen-' + id; if (busy[bkey]) return; busy[bkey] = true;
+      try { const res = await fetch(DB + '/generated/' + id + '/' + key + '.json', { method: 'DELETE' }); if (!res.ok) throw new Error('HTTP ' + res.status); await fetchGenerated(); }
+      catch (e) { setStatus('⚠ No se pudo eliminar', 'err'); } finally { busy[bkey] = false; }
+    }
+
+    // ---------- Trading (Julián y Jorge) ----------
+    async function setTrading(id) {
+      const bkey = 'tr-' + id; if (busy[bkey]) return;
+      const input = document.getElementById('trin-' + id);
+      const raw = parseFloat(input.value);
+      if (isNaN(raw)) { shake(input); return; }
+      const t = trading[id] || {};
+      if (t.funded) { setStatus('Cuenta ya fondeada ✅', 'ok'); setTimeout(() => setStatus('', ''), 1500); return; }
+      const phase = Number(t.phase || 1);
+      const target = PHASE_TARGET[phase] || 8;
+      const pct = Math.round(Math.max(TR_MIN, Math.min(target, raw)) * 100) / 100;
+      const day = ymd(new Date());
+      const post = (obj) => fetch(DB + '/trading/' + id + '/log.json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
+      const put = (path, v) => fetch(DB + '/trading/' + id + '/' + path + '.json', { method: 'PUT', body: JSON.stringify(v) });
+      busy[bkey] = true; setStatus('Guardando…', '');
+      try {
+        await post({ pct, phase, day });
+        if (pct >= target) {                 // objetivo alcanzado → pasa de fase
+          await post({ pass: phase, day });
+          if (phase === 1) { await put('phase', 2); await put('current', 0); }
+          else { await put('funded', true); await put('current', target); await post({ funded: true, day }); }
+        } else {
+          await put('current', pct);
+        }
+        input.value = ''; await fetchTrading();
+        setStatus(pct >= target ? '¡Fase superada! ✅' : 'Registrado ✓', 'ok'); setTimeout(() => setStatus('', ''), 1400);
+      } catch (e) { setStatus('⚠ No se pudo guardar', 'err'); }
+      finally { busy[bkey] = false; }
+    }
+    async function burnTrading(id) {
+      const bkey = 'tr-' + id; if (busy[bkey]) return;
+      if (!confirm('¿Marcar la cuenta de ' + nameOf(id) + ' como quemada y reiniciar a Fase 1 (0%)?')) return;
+      busy[bkey] = true; setStatus('Reiniciando…', '');
+      try {
+        await fetch(DB + '/trading/' + id + '/current.json', { method: 'PUT', body: JSON.stringify(0) });
+        await fetch(DB + '/trading/' + id + '/phase.json', { method: 'PUT', body: JSON.stringify(1) });
+        await fetch(DB + '/trading/' + id + '/funded.json', { method: 'PUT', body: JSON.stringify(false) });
+        await fetch(DB + '/trading/' + id + '/log.json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ burned: true, day: ymd(new Date()) }) });
+        await fetchTrading();
+        setStatus('Cuenta reiniciada 🔥', 'ok'); setTimeout(() => setStatus('', ''), 1500);
+      } catch (e) { setStatus('⚠ No se pudo reiniciar', 'err'); }
+      finally { busy[bkey] = false; }
+    }
+    async function deleteTradingLog(id, key) {
+      const bkey = 'tr-' + id; if (busy[bkey]) return; busy[bkey] = true;
+      try { const res = await fetch(DB + '/trading/' + id + '/log/' + key + '.json', { method: 'DELETE' }); if (!res.ok) throw new Error('HTTP ' + res.status); await fetchTrading(); }
+      catch (e) { setStatus('⚠ No se pudo eliminar', 'err'); } finally { busy[bkey] = false; }
     }
 
     // ---------- Foto ----------
@@ -373,13 +584,11 @@
       reader.onload = ev => {
         const img = new Image();
         img.onload = async () => {
-          // Recorte cuadrado centrado (estilo Instagram) + redimensionado
           const size = 256;
           const side = Math.min(img.width, img.height);
           const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
           const canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+          canvas.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, size, size);
           const dataURL = canvas.toDataURL('image/jpeg', 0.85);
           photos[id] = dataURL; renderPhoto(id);
           setStatus('Subiendo foto…', '');
@@ -394,7 +603,7 @@
       reader.readAsDataURL(file); inputEl.value = '';
     }
 
-    // ---------- Tablero clásico (recibido / pendiente) ----------
+    // ====== RETO 500€ (NO TOCAR) ======
     function classicTotals() {
       let received = 0, pending = 0;
       Object.keys(classic).forEach(k => {
@@ -444,12 +653,11 @@
       const days = [];
       const cur = new Date(START_PENDING); cur.setHours(0, 0, 0, 0);
       while (cur <= today) { days.push(ymd(cur)); cur.setDate(cur.getDate() + 1); }
-      days.reverse(); // hoy primero
+      days.reverse();
       const grid = document.getElementById('day-grid');
       if (!grid) return;
       grid.innerHTML = days.map(ds => {
-        const p = ds.split('-');
-        const label = Number(p[2]) + ' ' + MESES[Number(p[1]) - 1];
+        const label = dayLabel(ds);
         const amt = byDay[ds] || 0;
         const isToday = ds === todayStr;
         return `<div class="day-sq ${amt !== 0 ? '' : 'empty'} ${isToday ? 'today' : ''}">
@@ -509,11 +717,13 @@
     buildCards();
     PEOPLE.forEach(p => {
       document.getElementById('input-' + p.id).addEventListener('keydown', e => { if (e.key === 'Enter') addMove(p.id, 1); });
+      document.getElementById('genin-' + p.id).addEventListener('keydown', e => { if (e.key === 'Enter') addGenerated(p.id); });
     });
+    TRADERS.forEach(id => { document.getElementById('trin-' + id).addEventListener('keydown', e => { if (e.key === 'Enter') setTrading(id); }); });
     document.getElementById('cin-received').addEventListener('keydown', e => { if (e.key === 'Enter') addClassic('received', 1); });
     document.getElementById('cin-pending').addEventListener('keydown', e => { if (e.key === 'Enter') addClassic('pending', 1); });
 
-    function refreshAll(silent) { fetchMoves(silent); fetchClassic(true); }
+    function refreshAll(silent) { fetchMoves(silent); fetchGoals(); fetchGenerated(); fetchTrading(); fetchClassic(true); }
     refreshAll(false);
     fetchPhotos();
     setInterval(() => refreshAll(true), 6000);
