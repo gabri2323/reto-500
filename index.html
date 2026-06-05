@@ -115,6 +115,18 @@
     .dot.green { background: #4ade80; }
     .dot.gray  { background: #a1a1aa; }
 
+    .day-block { margin-top: 24px; }
+    .day-title { font-size: .9rem; font-weight: 700; color: #a0a0b8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .day-grid { display: flex; flex-wrap: wrap; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 2px; }
+    .day-grid::-webkit-scrollbar { width: 4px; }
+    .day-grid::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 4px; }
+    .day-sq { width: 92px; min-height: 64px; background: #22222e; border: 1px solid #2a2a38; border-radius: 12px; padding: 9px 10px; display: flex; flex-direction: column; justify-content: space-between; }
+    .day-sq .d { font-size: .72rem; color: #6b6b80; line-height: 1.25; }
+    .day-sq .m { font-size: 1.15rem; font-weight: 700; color: #a1a1aa; }
+    .day-sq.empty { opacity: .5; }
+    .day-sq.empty .m { color: #3a3a50; }
+    .day-sq.today { border-color: #a1a1aa; }
+
     footer { margin-top: 30px; text-align: center; color: #3a3a50; font-size: .8rem; }
 
     @media (max-width: 560px) { .cadd { grid-template-columns: minmax(0, 1fr); } .cstats { flex-wrap: wrap; } .cstat { min-width: calc(50% - 6px); } }
@@ -190,6 +202,11 @@
       </div>
 
       <div class="hist" id="c-hist"></div>
+
+      <div class="day-block">
+        <h4 class="day-title"><span class="dot gray"></span>Pendiente por día</h4>
+        <div class="day-grid" id="day-grid"></div>
+      </div>
     </div>
 
     <footer>Reto comprar una casa · 5 × 300.000€ = 1.500.000€ · datos compartidos en tiempo real</footer>
@@ -214,6 +231,9 @@
     const busy = {};
 
     const fmt = n => Number(n || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 });
+    const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const ymd = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const START_PENDING = new Date(2026, 5, 5); // 5 de junio de 2026 (inicio del historial diario)
 
     function setStatus(text, kind) {
       const el = document.getElementById('conn-status');
@@ -412,12 +432,39 @@
       }).join('');
     }
 
+    // Historial diario SOLO de "dinero pendiente": un cuadrado por día desde el 5-jun
+    function renderPendingDays() {
+      const byDay = {};
+      Object.keys(classic).forEach(k => {
+        const e = classic[k];
+        if (e.type === 'pending' && e.day) byDay[e.day] = (byDay[e.day] || 0) + Number(e.amount || 0);
+      });
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const todayStr = ymd(today);
+      const days = [];
+      const cur = new Date(START_PENDING); cur.setHours(0, 0, 0, 0);
+      while (cur <= today) { days.push(ymd(cur)); cur.setDate(cur.getDate() + 1); }
+      days.reverse(); // hoy primero
+      const grid = document.getElementById('day-grid');
+      if (!grid) return;
+      grid.innerHTML = days.map(ds => {
+        const p = ds.split('-');
+        const label = Number(p[2]) + ' ' + MESES[Number(p[1]) - 1];
+        const amt = byDay[ds] || 0;
+        const isToday = ds === todayStr;
+        return `<div class="day-sq ${amt !== 0 ? '' : 'empty'} ${isToday ? 'today' : ''}">
+          <span class="d">${label}${isToday ? ' · hoy' : ''}</span>
+          <span class="m">${fmt(amt)}€</span>
+        </div>`;
+      }).join('');
+    }
+
     async function fetchClassic(silent) {
       try {
         const res = await fetch(DB + '/classic.json', { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         classic = (await res.json()) || {};
-        renderClassic(); setStatus('', '');
+        renderClassic(); renderPendingDays(); setStatus('', '');
       } catch (e) { if (!silent) setStatus('⚠ No se pudo conectar con la base de datos', 'err'); }
     }
 
@@ -439,7 +486,7 @@
       try {
         const res = await fetch(DB + '/classic.json', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type, amount: Math.round(value * 100) / 100 })
+          body: JSON.stringify({ type, amount: Math.round(value * 100) / 100, day: ymd(new Date()) })
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         input.value = ''; await fetchClassic();
