@@ -131,7 +131,13 @@
     .cstat .v.gray  { color: #a1a1aa; }
     .cstat .v.white { color: #fff; }
 
-    .cadd { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin: 20px 0; }
+    .cadd { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 16px 0; }
+    .cbar-mark { position: absolute; top: 0; bottom: 0; left: 56%; width: 2px; background: #e8e8f0; opacity: .8; z-index: 2; }
+    .cbar-marklabel { position: relative; height: 14px; margin-top: 4px; }
+    .cbar-marklabel span { position: absolute; left: 56%; transform: translateX(-50%); font-size: .64rem; color: #a0a0b8; white-space: nowrap; }
+    .rent-status { font-size: .74rem; margin-top: 8px; }
+    .rent-status.ok { color: #4ade80; }
+    .rent-status.no { color: #6b6b80; }
     .add-card { background: #14141c; border: 1px solid #2a2a38; border-radius: 14px; padding: 16px; min-width: 0; }
     .add-card h3 { font-size: .95rem; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
     .add-card .desc { font-size: .76rem; color: #6b6b80; margin-bottom: 12px; }
@@ -180,63 +186,13 @@
     <div class="section-title">Perfiles<small>Caja fuerte (con objetivo propio) + dinero generado al día</small></div>
     <div class="grid" id="grid"></div>
 
-    <!-- ===== SECCIÓN APARTE: TABLERO CLÁSICO RECIBIDO / PENDIENTE (RETO 500€) ===== -->
-    <div class="divider"></div>
-    <div class="classic-section">
-      <div class="classic-head">
-        <h2>Reto <span>500€</span> · recibido / pendiente</h2>
-        <p>Tablero clásico: recibido (verde) + pendiente (gris) en una sola barra · se puede sumar y restar</p>
-      </div>
-
-      <div class="cbar-wrapper">
-        <div class="cbar-fill">
-          <div class="cbar-green" id="cbar-green"></div>
-          <div class="cbar-gray"  id="cbar-gray"></div>
-        </div>
-        <span class="bar-percent" id="cbar-pct">0%</span>
-      </div>
-
-      <div class="cstats">
-        <div class="cstat"><span class="lab">Recibido</span><span class="v green" id="c-received">0€</span></div>
-        <div class="cstat"><span class="lab">Pendiente</span><span class="v gray" id="c-pending">0€</span></div>
-        <div class="cstat"><span class="lab">Restante</span><span class="v white" id="c-left">500€</span></div>
-      </div>
-
-      <div class="cadd">
-        <div class="add-card">
-          <h3><span class="dot green"></span>Dinero recibido</h3>
-          <div class="desc">Cobrado y en tu cuenta</div>
-          <div class="input-row">
-            <input id="cin-received" type="number" min="0" step="0.01" placeholder="€ importe">
-            <button class="btn btn-sub" id="csub-received" onclick="addClassic('received',-1)" title="Restar">−</button>
-            <button class="btn btn-add" id="cadd-received" onclick="addClassic('received',1)" title="Sumar">+</button>
-          </div>
-        </div>
-        <div class="add-card">
-          <h3><span class="dot gray"></span>Dinero pendiente</h3>
-          <div class="desc">Acordado pero no cobrado aún</div>
-          <div class="input-row">
-            <input id="cin-pending" type="number" min="0" step="0.01" placeholder="€ importe">
-            <button class="btn btn-sub" id="csub-pending" onclick="addClassic('pending',-1)" title="Restar">−</button>
-            <button class="btn btn-add" id="cadd-pending" onclick="addClassic('pending',1)" title="Sumar">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="hist" id="c-hist"></div>
-
-      <div class="day-block">
-        <h4 class="day-title"><span class="dot gray"></span>Pendiente por día</h4>
-        <div class="day-grid" id="day-grid"></div>
-      </div>
-    </div>
-
-    <footer>Reto comprar una casa · caja fuerte y generado por perfil · el reto de 500€ va aparte · datos compartidos en tiempo real</footer>
+    <footer>Reto comprar una casa · caja fuerte, generado y trading por perfil · datos compartidos en tiempo real</footer>
   </div>
 
   <script>
     const DEFAULT_GOAL = 300000;    // objetivo por defecto de cada caja fuerte
-    const GOAL_CLASSIC = 500;       // tablero clásico de abajo (reto 500€)
+    const GOAL_CLASSIC = 500;       // recibido / pendiente (3er apartado de Andrés)
+    const RENT = 280;               // marcador en la barra: alquiler cubierto
     const DB = 'https://reto-500-default-rtdb.firebaseio.com';
     const PEOPLE = [
       { id: 'andres', name: 'Andrés', color: '#4ade80' },
@@ -341,6 +297,51 @@
             </div>
             <button class="btn btn-burn btn-sm" onclick="burnTrading('${p.id}')">🔥 Quemé la cuenta</button>
             <div class="hist sm" id="thist-${p.id}"></div>
+          </div>` : ''}
+
+          ${p.id === 'andres' ? `
+          <div class="blk">
+            <div class="subh">🏠 Recibido / pendiente</div>
+            <div class="cbar-wrapper">
+              <div class="cbar-fill">
+                <div class="cbar-green" id="cbar-green"></div>
+                <div class="cbar-gray"  id="cbar-gray"></div>
+              </div>
+              <div class="cbar-mark" title="280€ · alquiler cubierto"></div>
+              <span class="bar-percent" id="cbar-pct">0%</span>
+            </div>
+            <div class="cbar-marklabel"><span>▲ 280€ · alquiler</span></div>
+            <div class="rent-status" id="rent-status"></div>
+            <div class="cstats">
+              <div class="cstat"><span class="lab">Recibido</span><span class="v green" id="c-received">0€</span></div>
+              <div class="cstat"><span class="lab">Pendiente</span><span class="v gray" id="c-pending">0€</span></div>
+              <div class="cstat"><span class="lab">Restante</span><span class="v white" id="c-left">500€</span></div>
+            </div>
+            <div class="cadd">
+              <div class="add-card">
+                <h3><span class="dot green"></span>Dinero recibido</h3>
+                <div class="desc">Cobrado y en tu cuenta</div>
+                <div class="input-row">
+                  <input id="cin-received" type="number" min="0" step="0.01" placeholder="€ importe">
+                  <button class="btn btn-sub" id="csub-received" onclick="addClassic('received',-1)" title="Restar">−</button>
+                  <button class="btn btn-add" id="cadd-received" onclick="addClassic('received',1)" title="Sumar">+</button>
+                </div>
+              </div>
+              <div class="add-card">
+                <h3><span class="dot gray"></span>Dinero pendiente</h3>
+                <div class="desc">Acordado pero no cobrado aún</div>
+                <div class="input-row">
+                  <input id="cin-pending" type="number" min="0" step="0.01" placeholder="€ importe">
+                  <button class="btn btn-sub" id="csub-pending" onclick="addClassic('pending',-1)" title="Restar">−</button>
+                  <button class="btn btn-add" id="cadd-pending" onclick="addClassic('pending',1)" title="Sumar">+</button>
+                </div>
+              </div>
+            </div>
+            <div class="hist sm" id="c-hist"></div>
+            <div class="day-block">
+              <h4 class="day-title"><span class="dot gray"></span>Pendiente por día</h4>
+              <div class="day-grid" id="day-grid"></div>
+            </div>
           </div>` : ''}
         </div>`).join('');
     }
@@ -626,6 +627,11 @@
       document.getElementById('c-received').textContent = fmt(received) + '€';
       document.getElementById('c-pending').textContent  = fmt(pending) + '€';
       document.getElementById('c-left').textContent     = fmt(Math.max(0, GOAL_CLASSIC - total)) + '€';
+      const rs = document.getElementById('rent-status');
+      if (rs) {
+        if (total >= RENT) { rs.textContent = '✅ Alquiler cubierto (280€)'; rs.className = 'rent-status ok'; }
+        else { rs.textContent = 'Faltan ' + fmt(RENT - total) + '€ para cubrir el alquiler (280€)'; rs.className = 'rent-status no'; }
+      }
 
       const keys = Object.keys(classic).sort((a, b) => (a < b ? 1 : -1));
       const hist = document.getElementById('c-hist');
