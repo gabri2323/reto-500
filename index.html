@@ -139,9 +139,13 @@
     .cadd .input-row { flex-wrap: wrap; }
     .cadd .input-row input { flex: 1 1 100%; }
     .cadd .input-row .btn { flex: 1 1 0; min-width: 0; }
-    .cbar-mark { position: absolute; top: 0; bottom: 0; left: 56%; width: 2px; background: #ef4444; opacity: 1; z-index: 2; }
-    .cbar-marklabel { position: relative; height: 14px; margin-top: 4px; }
-    .cbar-marklabel span { position: absolute; left: 56%; transform: translateX(-50%); font-size: .64rem; color: #ef4444; font-weight: 600; white-space: nowrap; }
+    .cbar-mark { position: absolute; top: 0; bottom: 0; width: 3px; transform: translateX(-50%); background: #ef4444; box-shadow: 0 0 0 1px rgba(0,0,0,.45); opacity: 1; z-index: 2; }
+    .cbar-mark.s-yellow { background: #f59e0b; }
+    .cbar-mark.s-green { background: #4ade80; }
+    .cbar-legend { display: flex; flex-wrap: wrap; gap: 3px 12px; margin-top: 6px; }
+    .cbar-legend span { font-size: .64rem; font-weight: 600; white-space: nowrap; color: #ef4444; }
+    .cbar-legend span.s-yellow { color: #f59e0b; }
+    .cbar-legend span.s-green { color: #4ade80; }
     .add-card { background: #14141c; border: 1px solid #2a2a38; border-radius: 14px; padding: 12px; min-width: 0; }
     .add-card h3 { font-size: .9rem; font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 7px; }
     .add-card .desc { font-size: .72rem; color: #6b6b80; margin-bottom: 10px; }
@@ -332,10 +336,16 @@
                 <div class="cbar-green" id="cbar-green"></div>
                 <div class="cbar-gray"  id="cbar-gray"></div>
               </div>
-              <div class="cbar-mark" title="280€ · alquiler cubierto"></div>
+              <div class="cbar-mark" id="cmark-280" style="left:56%" title="280€ · alquiler"></div>
+              <div class="cbar-mark" id="cmark-300" style="left:60%" title="300€ · servicios"></div>
+              <div class="cbar-mark" id="cmark-350" style="left:70%" title="350€ · comida"></div>
               <span class="bar-percent" id="cbar-pct">0%</span>
             </div>
-            <div class="cbar-marklabel"><span>▲ 280€ · alquiler</span></div>
+            <div class="cbar-legend">
+              <span id="cleg-280">▲ 280€ alquiler</span>
+              <span id="cleg-300">▲ 300€ servicios</span>
+              <span id="cleg-350">▲ 350€ comida</span>
+            </div>
             <div class="cstats">
               <div class="cstat"><span class="lab">Recibido</span><span class="v green" id="c-received">0€</span></div>
               <div class="cstat"><span class="lab">Pendiente</span><span class="v gray" id="c-pending">0€</span></div>
@@ -649,6 +659,15 @@
       document.getElementById('c-received').textContent = fmt(received) + '€';
       document.getElementById('c-pending').textContent  = fmt(pending) + '€';
       document.getElementById('c-left').textContent     = fmt(Math.max(0, GOAL_CLASSIC - total)) + '€';
+
+      // Indicadores 280/300/350: verde si lo cubre lo recibido, amarillo si lo cubre lo pendiente, rojo si no se llega
+      [280, 300, 350].forEach(T => {
+        const cls = received >= T ? 's-green' : (total >= T ? 's-yellow' : 's-red');
+        const mk = document.getElementById('cmark-' + T);
+        const lg = document.getElementById('cleg-' + T);
+        if (mk) mk.className = 'cbar-mark ' + cls;
+        if (lg) lg.className = cls;
+      });
     }
 
     // Historial diario SOLO de "dinero pendiente": un cuadrado por día desde el 5-jun
