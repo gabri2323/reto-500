@@ -18,12 +18,14 @@
     header h1 { font-size: 2.3rem; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
     header h1 span { color: #4ade80; }
     header p { margin-top: 6px; color: #6b6b80; font-size: 0.95rem; }
+    .hero-img { display: block; width: 100%; height: auto; border-radius: 16px; }
     .conn-status { min-height: 18px; margin-top: 10px; font-size: 0.8rem; color: #6b6b80; text-align: center; transition: color .2s; }
     .conn-status.err { color: #ef4444; }
     .conn-status.ok  { color: #4ade80; }
 
     .section-title { font-size: 1.1rem; font-weight: 700; color: #fff; letter-spacing: .02em; margin-bottom: 14px; text-transform: uppercase; }
     .section-title small { display:block; text-transform:none; letter-spacing:0; font-weight:400; color:#6b6b80; font-size:.78rem; margin-top:3px; }
+    .section-title.center { text-align: center; }
 
     /* GLOBAL TOTAL */
     .total-section { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 20px; padding: 26px 32px; margin-bottom: 30px; }
@@ -177,13 +179,12 @@
 <body>
   <div class="container">
     <header>
-      <h1>Reto <span>comprar una casa</span></h1>
-      <p>Cada perfil tiene su caja fuerte con objetivo propio · cualquiera con el link puede actualizar</p>
+      <img class="hero-img" src="portada.jpg" alt="Reto comprar una casa">
       <div class="conn-status" id="conn-status"></div>
     </header>
 
     <!-- BARRA GLOBAL -->
-    <div class="section-title">Caja fuerte global<small>Suma de las cajas fuertes de los 5 · objetivo = suma de los objetivos personales</small></div>
+    <div class="section-title center">Caja fuerte global</div>
     <div class="total-section">
       <div class="total-labels">
         <div class="total-amount" id="total-amount">0<span class="unit">€</span></div>
