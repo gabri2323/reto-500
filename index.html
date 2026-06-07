@@ -135,16 +135,16 @@
     .cstat .v.gray  { color: #a1a1aa; }
     .cstat .v.white { color: #fff; }
 
-    .cadd { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 16px 0; }
-    .cbar-mark { position: absolute; top: 0; bottom: 0; left: 56%; width: 2px; background: #e8e8f0; opacity: .8; z-index: 2; }
+    .cadd { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 16px 0; }
+    .cadd .input-row { flex-wrap: wrap; }
+    .cadd .input-row input { flex: 1 1 100%; }
+    .cadd .input-row .btn { flex: 1 1 0; min-width: 0; }
+    .cbar-mark { position: absolute; top: 0; bottom: 0; left: 56%; width: 2px; background: #ef4444; opacity: 1; z-index: 2; }
     .cbar-marklabel { position: relative; height: 14px; margin-top: 4px; }
-    .cbar-marklabel span { position: absolute; left: 56%; transform: translateX(-50%); font-size: .64rem; color: #a0a0b8; white-space: nowrap; }
-    .rent-status { font-size: .74rem; margin-top: 8px; }
-    .rent-status.ok { color: #4ade80; }
-    .rent-status.no { color: #6b6b80; }
-    .add-card { background: #14141c; border: 1px solid #2a2a38; border-radius: 14px; padding: 16px; min-width: 0; }
-    .add-card h3 { font-size: .95rem; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-    .add-card .desc { font-size: .76rem; color: #6b6b80; margin-bottom: 12px; }
+    .cbar-marklabel span { position: absolute; left: 56%; transform: translateX(-50%); font-size: .64rem; color: #ef4444; font-weight: 600; white-space: nowrap; }
+    .add-card { background: #14141c; border: 1px solid #2a2a38; border-radius: 14px; padding: 12px; min-width: 0; }
+    .add-card h3 { font-size: .9rem; font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 7px; }
+    .add-card .desc { font-size: .72rem; color: #6b6b80; margin-bottom: 10px; }
     .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .dot.green { background: #4ade80; }
     .dot.gray  { background: #a1a1aa; }
@@ -165,7 +165,7 @@
     .day-sq .x { position: absolute; top: 1px; right: 3px; background: none; border: none; color: #3a3a50; cursor: pointer; font-size: .82rem; line-height: 1; padding: 2px; }
     .day-sq .x:hover { color: #ef4444; }
 
-    @media (max-width: 560px) { .cadd { grid-template-columns: minmax(0, 1fr); } .cstats { flex-wrap: wrap; } .cstat { min-width: calc(50% - 6px); } }
+    @media (max-width: 560px) { .cstats { flex-wrap: wrap; } .cstat { min-width: calc(50% - 6px); } }
   </style>
 </head>
 <body>
@@ -336,7 +336,6 @@
               <span class="bar-percent" id="cbar-pct">0%</span>
             </div>
             <div class="cbar-marklabel"><span>▲ 280€ · alquiler</span></div>
-            <div class="rent-status" id="rent-status"></div>
             <div class="cstats">
               <div class="cstat"><span class="lab">Recibido</span><span class="v green" id="c-received">0€</span></div>
               <div class="cstat"><span class="lab">Pendiente</span><span class="v gray" id="c-pending">0€</span></div>
@@ -650,12 +649,6 @@
       document.getElementById('c-received').textContent = fmt(received) + '€';
       document.getElementById('c-pending').textContent  = fmt(pending) + '€';
       document.getElementById('c-left').textContent     = fmt(Math.max(0, GOAL_CLASSIC - total)) + '€';
-      const rs = document.getElementById('rent-status');
-      if (rs) {
-        if (total >= RENT) { rs.textContent = '✅ Alquiler cubierto (280€)'; rs.className = 'rent-status ok'; }
-        else { rs.textContent = 'Faltan ' + fmt(RENT - total) + '€ para cubrir el alquiler (280€)'; rs.className = 'rent-status no'; }
-      }
-
     }
 
     // Historial diario SOLO de "dinero pendiente": un cuadrado por día desde el 5-jun
