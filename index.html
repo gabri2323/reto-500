@@ -25,7 +25,7 @@
 
     .section-title { font-size: 1.1rem; font-weight: 700; color: #fff; letter-spacing: .02em; margin-bottom: 14px; text-transform: uppercase; }
     .section-title small { display:block; text-transform:none; letter-spacing:0; font-weight:400; color:#6b6b80; font-size:.78rem; margin-top:3px; }
-    .section-title.center { text-align: center; }
+    .section-title.center { text-align: center; font-size: 1.7rem; }
 
     /* GLOBAL TOTAL */
     .total-section { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 20px; padding: 26px 32px; margin-bottom: 30px; }
@@ -54,9 +54,9 @@
     .avatar .letter { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.3rem; color: #0f0f13; }
     .avatar .avatar-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
     .avatar .cam { position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-radius: 50%; background: #4ade80; color: #052e16; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 2px solid #1a1a24; z-index: 3; }
-    .card-head .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .card-head .name { font-size: 1.05rem; font-weight: 700; color: #fff; }
-    .card-head .amount { font-size: 1.35rem; font-weight: 700; color: #4ade80; }
+    .card-head .who { display: flex; flex-direction: row; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; min-width: 0; }
+    .card-head .name { font-size: 1.5rem; font-weight: 700; color: #FFD24A; }
+    .card-head .amount { font-size: 1.3rem; font-weight: 700; color: #4ade80; }
     .mini-bar { background: #2a2a38; border-radius: 999px; height: 10px; overflow: hidden; }
     .mini-fill { background: linear-gradient(90deg, #16a34a, #4ade80); height: 100%; width: 0%; transition: width .5s cubic-bezier(.4,0,.2,1); }
     .mini-pct { font-size: .72rem; color: #6b6b80; }
@@ -126,6 +126,9 @@
     .classic-head h2 span { color: #4ade80; }
     .classic-head p { margin-top: 5px; color: #6b6b80; font-size: .88rem; }
 
+    .cbar-row { display: flex; align-items: center; gap: 10px; }
+    .cbar-row .cbar-wrapper { flex: 1; min-width: 0; }
+    .cbar-pct-out { font-size: .9rem; font-weight: 700; color: rgba(255,255,255,.7); white-space: nowrap; flex-shrink: 0; }
     .cbar-wrapper { background: #2a2a38; border-radius: 999px; height: 28px; overflow: hidden; position: relative; }
     .cbar-fill { height: 100%; display: flex; border-radius: 999px; overflow: hidden; min-width: 0; }
     .cbar-green { background: linear-gradient(90deg, #16a34a, #4ade80); height: 100%; width: 0%; transition: width .5s cubic-bezier(.4,0,.2,1); }
@@ -198,7 +201,6 @@
     </div>
 
     <!-- TABLEROS INDIVIDUALES -->
-    <div class="section-title">Perfiles<small>Caja fuerte (con objetivo propio) + dinero generado al día</small></div>
     <div class="grid" id="grid"></div>
 
     <footer>Reto comprar una casa · caja fuerte, generado y trading por perfil · datos compartidos en tiempo real</footer>
@@ -335,21 +337,24 @@
 
           ${p.id === 'andres' ? `
           <div class="blk">
-            <div class="subh">🏠 Recibido / pendiente</div>
-            <div class="cbar-wrapper">
-              <div class="cbar-fill">
-                <div class="cbar-green" id="cbar-green"></div>
-                <div class="cbar-gray"  id="cbar-gray"></div>
+            <div class="cbar-row">
+              <div class="cbar-wrapper">
+                <div class="cbar-fill">
+                  <div class="cbar-green" id="cbar-green"></div>
+                  <div class="cbar-gray"  id="cbar-gray"></div>
+                </div>
+                <div class="cbar-mark" id="cmark-70" style="left:14%" title="70€ · comida"></div>
+                <div class="cbar-mark" id="cmark-350" style="left:70%" title="350€ · alquiler"></div>
+                <div class="cbar-mark" id="cmark-370" style="left:74%" title="370€ · servicios"></div>
+                <div class="cbar-mark" id="cmark-470" style="left:94%" title="470€ · reinversión"></div>
               </div>
-              <div class="cbar-mark" id="cmark-280" style="left:56%" title="280€ · alquiler"></div>
-              <div class="cbar-mark" id="cmark-300" style="left:60%" title="300€ · servicios"></div>
-              <div class="cbar-mark" id="cmark-350" style="left:70%" title="350€ · comida"></div>
-              <span class="bar-percent" id="cbar-pct">0%</span>
+              <span class="cbar-pct-out" id="cbar-pct">0%</span>
             </div>
             <div class="cbar-legend">
-              <span id="cleg-280">● 280€ alquiler</span>
-              <span id="cleg-300">● 300€ servicios</span>
-              <span id="cleg-350">● 350€ comida</span>
+              <span id="cleg-70">● 70€ comida</span>
+              <span id="cleg-350">● 350€ alquiler</span>
+              <span id="cleg-370">● 370€ servicios</span>
+              <span id="cleg-470">● 470€ reinversión</span>
             </div>
             <div class="cstats">
               <div class="cstat"><span class="lab">Recibido</span><span class="v green" id="c-received">0€</span></div>
@@ -704,8 +709,8 @@
       document.getElementById('c-pending').textContent  = fmt(pending) + '€';
       document.getElementById('c-left').textContent     = fmt(Math.max(0, GOAL_CLASSIC - total)) + '€';
 
-      // Indicadores 280/300/350: verde si lo cubre lo recibido, amarillo si lo cubre lo pendiente, rojo si no se llega
-      [280, 300, 350].forEach(T => {
+      // Indicadores 70/350/370/470 (comida, alquiler, servicios, reinversión): verde si lo cubre lo recibido, amarillo si lo cubre lo pendiente, rojo si no se llega
+      [70, 350, 370, 470].forEach(T => {
         const cls = received >= T ? 's-green' : (total >= T ? 's-yellow' : 's-red');
         const mk = document.getElementById('cmark-' + T);
         const lg = document.getElementById('cleg-' + T);
