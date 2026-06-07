@@ -40,7 +40,11 @@
 
     /* PARTICIPANTS GRID */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
-    .card { background: #1a1a24; border: 1px solid #2a2a38; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .card { position: relative; background: #1a1a24; border: 1px solid #2a2a38; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .crown-badge { position: absolute; top: -16px; right: -8px; width: 50px; transform: rotate(14deg); filter: drop-shadow(0 3px 5px rgba(0,0,0,.5)); pointer-events: none; z-index: 6; transform-origin: center bottom; animation: crownPop .4s cubic-bezier(.34,1.56,.64,1); }
+    .crown-badge[hidden] { display: none; }
+    .crown-badge svg { width: 100%; height: auto; display: block; }
+    @keyframes crownPop { from { transform: rotate(14deg) scale(0); } to { transform: rotate(14deg) scale(1); } }
     .card-head { display: flex; align-items: center; gap: 14px; }
     .avatar { width: 58px; height: 58px; border-radius: 50%; flex-shrink: 0; cursor: pointer; position: relative; user-select: none; }
     .avatar-clip { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border: 2px solid #2a2a38; transition: border-color .2s; background: #14141c; }
@@ -123,10 +127,10 @@
     .cbar-green { background: linear-gradient(90deg, #16a34a, #4ade80); height: 100%; width: 0%; transition: width .5s cubic-bezier(.4,0,.2,1); }
     .cbar-gray  { background: linear-gradient(90deg, #52525b, #a1a1aa); height: 100%; width: 0%; transition: width .5s cubic-bezier(.4,0,.2,1); }
 
-    .cstats { display: flex; gap: 12px; margin-top: 18px; }
-    .cstat { flex: 1; background: #22222e; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
-    .cstat .lab { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6b6b80; }
-    .cstat .v { font-size: 1.15rem; font-weight: 700; }
+    .cstats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .cstat { flex: 1 1 64px; min-width: 0; background: #22222e; border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .cstat .lab { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: #6b6b80; }
+    .cstat .v { font-size: 1rem; font-weight: 700; }
     .cstat .v.green { color: #4ade80; }
     .cstat .v.gray  { color: #a1a1aa; }
     .cstat .v.white { color: #fff; }
@@ -145,17 +149,21 @@
     .dot.green { background: #4ade80; }
     .dot.gray  { background: #a1a1aa; }
 
-    .day-block { margin-top: 24px; }
-    .day-title { font-size: .9rem; font-weight: 700; color: #a0a0b8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    .day-grid { display: flex; flex-wrap: wrap; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 2px; }
+    .day-block { margin-top: 16px; }
+    .day-title { font-size: .85rem; font-weight: 700; color: #a0a0b8; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .day-grid { display: flex; flex-wrap: wrap; gap: 6px; max-height: 124px; overflow-y: auto; padding-right: 2px; }
     .day-grid::-webkit-scrollbar { width: 4px; }
     .day-grid::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 4px; }
-    .day-sq { width: 92px; min-height: 64px; background: #22222e; border: 1px solid #2a2a38; border-radius: 12px; padding: 9px 10px; display: flex; flex-direction: column; justify-content: space-between; }
-    .day-sq .d { font-size: .72rem; color: #6b6b80; line-height: 1.25; }
-    .day-sq .m { font-size: 1.15rem; font-weight: 700; color: #a1a1aa; }
+    .day-sq { position: relative; min-width: 56px; max-width: 100%; background: #22222e; border: 1px solid #2a2a38; border-radius: 9px; padding: 5px 17px 5px 8px; display: flex; flex-direction: column; gap: 1px; }
+    .day-sq .d { font-size: .6rem; color: #6b6b80; line-height: 1.15; white-space: nowrap; }
+    .day-sq .m { font-size: .86rem; font-weight: 700; line-height: 1.2; color: #a1a1aa; white-space: nowrap; }
+    .day-sq .m.up { color: #4ade80; }
+    .day-sq .m.down { color: #f59e0b; }
     .day-sq.empty { opacity: .5; }
     .day-sq.empty .m { color: #3a3a50; }
     .day-sq.today { border-color: #a1a1aa; }
+    .day-sq .x { position: absolute; top: 1px; right: 3px; background: none; border: none; color: #3a3a50; cursor: pointer; font-size: .82rem; line-height: 1; padding: 2px; }
+    .day-sq .x:hover { color: #ef4444; }
 
     @media (max-width: 560px) { .cadd { grid-template-columns: minmax(0, 1fr); } .cstats { flex-wrap: wrap; } .cstat { min-width: calc(50% - 6px); } }
   </style>
@@ -246,6 +254,23 @@
     function buildCards() {
       document.getElementById('grid').innerHTML = PEOPLE.map(p => `
         <div class="card">
+          <div class="crown-badge" id="crown-${p.id}" title="Líder de la caja fuerte" hidden>
+            <svg viewBox="0 0 64 47" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M5,33 L10,12 L22,26 L32,6 L42,26 L54,12 L59,33 Z" fill="#F7C600" stroke="#4A3500" stroke-width="2.4" stroke-linejoin="round"/>
+              <rect x="6" y="31" width="52" height="13" rx="4" fill="#F7C600" stroke="#4A3500" stroke-width="2.4"/>
+              <path d="M32,15 l6,3.5 v7 l-6,3.5 l-6,-3.5 v-7 Z" fill="#E11414" stroke="#8A0C0C" stroke-width="1.6" stroke-linejoin="round"/>
+              <circle cx="29.6" cy="20" r="1.4" fill="#fff" opacity=".7"/>
+              <circle cx="16" cy="24" r="2.4" fill="#E11414" stroke="#8A0C0C" stroke-width="1.2"/>
+              <circle cx="48" cy="24" r="2.4" fill="#E11414" stroke="#8A0C0C" stroke-width="1.2"/>
+              <g fill="#C81010"><circle cx="14" cy="38" r="1.5"/><circle cx="22" cy="38" r="1.5"/><circle cx="32" cy="38" r="1.5"/><circle cx="42" cy="38" r="1.5"/><circle cx="50" cy="38" r="1.5"/></g>
+              <circle cx="10" cy="11" r="4" fill="#FFD23F" stroke="#4A3500" stroke-width="2.2"/>
+              <circle cx="32" cy="5.5" r="4.2" fill="#FFD23F" stroke="#4A3500" stroke-width="2.2"/>
+              <circle cx="54" cy="11" r="4" fill="#FFD23F" stroke="#4A3500" stroke-width="2.2"/>
+              <circle cx="8.6" cy="9.6" r="1.1" fill="#fff" opacity=".75"/>
+              <circle cx="30.4" cy="4" r="1.2" fill="#fff" opacity=".75"/>
+              <circle cx="52.6" cy="9.6" r="1.1" fill="#fff" opacity=".75"/>
+            </svg>
+          </div>
           <div class="card-head">
             <div class="avatar" id="avatar-${p.id}" onclick="pickPhoto('${p.id}')" title="Cambiar foto">
               <div class="avatar-clip">
@@ -267,7 +292,7 @@
               <button class="btn btn-sub" id="sub-${p.id}" onclick="addMove('${p.id}', -1)" title="Restar">−</button>
               <button class="btn btn-add" id="add-${p.id}" onclick="addMove('${p.id}', 1)" title="Sumar">+</button>
             </div>
-            <div class="hist sm" id="hist-${p.id}"></div>
+            <div class="day-grid" id="hist-${p.id}"></div>
           </div>
 
           <div class="blk">
@@ -276,7 +301,7 @@
               <input id="genin-${p.id}" type="number" min="0" step="0.01" placeholder="€ generado hoy">
               <button class="btn btn-add btn-sm" onclick="addGenerated('${p.id}')" title="Añadir generado">Generé</button>
             </div>
-            <div class="hist sm" id="ghist-${p.id}"></div>
+            <div class="day-grid" id="ghist-${p.id}"></div>
           </div>
 
           ${TRADERS.includes(p.id) ? `
@@ -296,7 +321,7 @@
               <button class="btn btn-add btn-sm" onclick="setTrading('${p.id}')" title="Registrar %">Registrar</button>
             </div>
             <button class="btn btn-burn btn-sm" onclick="burnTrading('${p.id}')">🔥 Quemé la cuenta</button>
-            <div class="hist sm" id="thist-${p.id}"></div>
+            <div class="day-grid" id="thist-${p.id}"></div>
           </div>` : ''}
 
           ${p.id === 'andres' ? `
@@ -337,7 +362,6 @@
                 </div>
               </div>
             </div>
-            <div class="hist sm" id="c-hist"></div>
             <div class="day-block">
               <h4 class="day-title"><span class="dot gray"></span>Pendiente por día</h4>
               <div class="day-grid" id="day-grid"></div>
@@ -373,10 +397,14 @@
         const hist = document.getElementById('hist-' + p.id);
         hist.innerHTML = keys.length === 0 ? '<div class="hist-empty">Sin movimientos</div>' : keys.map(k => {
           const a = Number(m[k].amount || 0), up = a >= 0;
-          return `<div class="move"><span class="val ${up?'up':'down'}">${up?'+':'−'}${fmt(Math.abs(a))}€</span>
-            <button class="del" onclick="deleteMove('${p.id}','${k}')" title="Eliminar">×</button></div>`;
+          return `<div class="day-sq"><span class="m ${up?'up':'down'}">${up?'+':'−'}${fmt(Math.abs(a))}€</span><button class="x" onclick="deleteMove('${p.id}','${k}')" title="Eliminar">×</button></div>`;
         }).join('');
       });
+
+      // 👑 Corona para quien más dinero tiene en la caja fuerte
+      let leader = null, leaderVal = -1;
+      PEOPLE.forEach(p => { const t = personTotal(p.id); if (t > leaderVal) { leaderVal = t; leader = p.id; } });
+      PEOPLE.forEach(p => { const c = document.getElementById('crown-' + p.id); if (c) c.hidden = !(leader === p.id && leaderVal > 0); });
 
       const pctTotal = Math.min((total / sumGoals) * 100, 100);
       document.getElementById('total-amount').innerHTML = fmt(total) + '<span class="unit">€</span>';
@@ -393,9 +421,7 @@
       const h = document.getElementById('ghist-' + id); if (!h) return;
       h.innerHTML = keys.length === 0 ? '<div class="hist-empty">Sin generado aún</div>' : keys.map(k => {
         const e = g[k];
-        return `<div class="move"><span class="lbl">${dayLabel(e.day)}</span>
-          <span style="display:flex;align-items:center"><span class="val up">+${fmt(e.amount)}€</span>
-          <button class="del" onclick="deleteGenerated('${id}','${k}')" title="Eliminar">×</button></span></div>`;
+        return `<div class="day-sq"><span class="d">${dayLabel(e.day)}</span><span class="m up">+${fmt(e.amount)}€</span><button class="x" onclick="deleteGenerated('${id}','${k}')" title="Eliminar">×</button></div>`;
       }).join('');
     }
 
@@ -424,15 +450,12 @@
       const keys = Object.keys(log).sort((a, b) => (a < b ? 1 : -1));
       const h = document.getElementById('thist-' + id);
       h.innerHTML = keys.length === 0 ? '<div class="hist-empty">Sin registros</div>' : keys.map(k => {
-        const e = log[k];
-        let val;
-        if (e.burned) val = '<span class="val down">🔥 cuenta quemada</span>';
-        else if (e.pass) val = '<span class="val up">✅ Fase ' + e.pass + ' superada</span>';
-        else if (e.funded) val = '<span class="val up">🏆 cuenta fondeada</span>';
-        else { const v = Number(e.pct || 0); val = `<span class="val ${v>=0?'up':'down'}">${v>0?'+':''}${v}%</span>`; }
-        return `<div class="move"><span class="lbl">${dayLabel(e.day)}</span>
-          <span style="display:flex;align-items:center">${val}
-          <button class="del" onclick="deleteTradingLog('${id}','${k}')" title="Eliminar">×</button></span></div>`;
+        const e = log[k]; let cls = 'up', txt;
+        if (e.burned) { cls = 'down'; txt = '🔥'; }
+        else if (e.pass) { cls = 'up'; txt = '✅ F' + e.pass; }
+        else if (e.funded) { cls = 'up'; txt = '🏆'; }
+        else { const v = Number(e.pct || 0); cls = v >= 0 ? 'up' : 'down'; txt = (v > 0 ? '+' : '') + v + '%'; }
+        return `<div class="day-sq"><span class="d">${dayLabel(e.day)}</span><span class="m ${cls}">${txt}</span><button class="x" onclick="deleteTradingLog('${id}','${k}')" title="Eliminar">×</button></div>`;
       }).join('');
     }
 
@@ -633,18 +656,6 @@
         else { rs.textContent = 'Faltan ' + fmt(RENT - total) + '€ para cubrir el alquiler (280€)'; rs.className = 'rent-status no'; }
       }
 
-      const keys = Object.keys(classic).sort((a, b) => (a < b ? 1 : -1));
-      const hist = document.getElementById('c-hist');
-      hist.innerHTML = keys.length === 0 ? '<div class="hist-empty">Sin movimientos</div>' : keys.map(k => {
-        const e = classic[k]; const a = Number(e.amount || 0); const up = a >= 0;
-        const isRec = e.type === 'received';
-        return `<div class="move">
-          <span class="lbl"><span class="dotmini" style="background:${isRec?'#4ade80':'#a1a1aa'}"></span>${isRec?'Recibido':'Pendiente'}</span>
-          <span style="display:flex;align-items:center">
-            <span class="val ${up?'up':'down'}">${up?'+':'−'}${fmt(Math.abs(a))}€</span>
-            <button class="del" onclick="deleteClassic('${k}')" title="Eliminar">×</button>
-          </span></div>`;
-      }).join('');
     }
 
     // Historial diario SOLO de "dinero pendiente": un cuadrado por día desde el 5-jun
