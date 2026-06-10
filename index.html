@@ -142,10 +142,7 @@
     .cstat .v.gray  { color: #a1a1aa; }
     .cstat .v.white { color: #fff; }
 
-    .cadd { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 16px 0; }
-    .cadd .input-row { flex-wrap: wrap; }
-    .cadd .input-row input { flex: 1 1 100%; }
-    .cadd .input-row .btn { flex: 1 1 0; min-width: 0; }
+    .cadd { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 16px 0; }
     .cbar-mark { position: absolute; top: 0; bottom: 0; width: 3px; transform: translateX(-50%); background: #ef4444; box-shadow: 0 0 0 1px rgba(0,0,0,.45); opacity: 1; z-index: 2; }
     .cbar-mark.s-yellow { background: #f59e0b; }
     .cbar-mark.s-green { background: #4ade80; }
@@ -343,34 +340,25 @@
                   <div class="cbar-green" id="cbar-green"></div>
                   <div class="cbar-gray"  id="cbar-gray"></div>
                 </div>
-                <div class="cbar-mark" id="cmark-70" style="left:14%" title="70€ · comida"></div>
-                <div class="cbar-mark" id="cmark-350" style="left:70%" title="350€ · alquiler"></div>
+                <div class="cbar-mark" id="cmark-60" style="left:12%" title="60€ · comida"></div>
+                <div class="cbar-mark" id="cmark-340" style="left:68%" title="340€ · alquiler"></div>
                 <div class="cbar-mark" id="cmark-370" style="left:74%" title="370€ · servicios"></div>
                 <div class="cbar-mark" id="cmark-470" style="left:94%" title="470€ · reinversión"></div>
               </div>
               <span class="cbar-pct-out" id="cbar-pct">0%</span>
             </div>
             <div class="cbar-legend">
-              <span id="cleg-70">● 70€ comida</span>
-              <span id="cleg-350">● 350€ alquiler</span>
+              <span id="cleg-60">● 60€ comida</span>
+              <span id="cleg-340">● 340€ alquiler</span>
               <span id="cleg-370">● 370€ servicios</span>
               <span id="cleg-470">● 470€ reinversión</span>
             </div>
             <div class="cstats">
-              <div class="cstat"><span class="lab">Recibido</span><span class="v green" id="c-received">0€</span></div>
+              <div class="cstat"><span class="lab">Generado (mes)</span><span class="v green" id="c-received">0€</span></div>
               <div class="cstat"><span class="lab">Pendiente</span><span class="v gray" id="c-pending">0€</span></div>
               <div class="cstat"><span class="lab">Restante</span><span class="v white" id="c-left">500€</span></div>
             </div>
             <div class="cadd">
-              <div class="add-card">
-                <h3><span class="dot green"></span>Dinero recibido</h3>
-                <div class="desc">Cobrado y en tu cuenta</div>
-                <div class="input-row">
-                  <input id="cin-received" type="number" min="0" step="0.01" placeholder="€ importe">
-                  <button class="btn btn-sub" id="csub-received" onclick="addClassic('received',-1)" title="Restar">−</button>
-                  <button class="btn btn-add" id="cadd-received" onclick="addClassic('received',1)" title="Sumar">+</button>
-                </div>
-              </div>
               <div class="add-card">
                 <h3><span class="dot gray"></span>Dinero pendiente</h3>
                 <div class="desc">Acordado pero no cobrado aún</div>
@@ -530,7 +518,7 @@
       try { const res = await fetch(DB + '/goals.json', { cache: 'no-store' }); if (!res.ok) return; goals = (await res.json()) || {}; render(); } catch (e) {}
     }
     async function fetchGenerated() {
-      try { const res = await fetch(DB + '/generated.json', { cache: 'no-store' }); if (!res.ok) return; generated = (await res.json()) || {}; PEOPLE.forEach(p => renderGenerated(p.id)); } catch (e) {}
+      try { const res = await fetch(DB + '/generated.json', { cache: 'no-store' }); if (!res.ok) return; generated = (await res.json()) || {}; PEOPLE.forEach(p => renderGenerated(p.id)); renderClassic(); } catch (e) {}
     }
     async function fetchTrading() {
       try { const res = await fetch(DB + '/trading.json', { cache: 'no-store' }); if (!res.ok) return; trading = (await res.json()) || {}; TRADERS.forEach(renderTrading); } catch (e) {}
@@ -695,8 +683,19 @@
       return { received, pending };
     }
 
+    // Total "Generado" del mes en curso (la barra verde del tablero de Andrés)
+    function genMonthTotal(id) {
+      const g = generated[id] || {};
+      const pref = ymd(new Date()).slice(0, 7);
+      let s = 0;
+      Object.keys(g).forEach(k => { const e = g[k]; if (e && e.day && String(e.day).slice(0, 7) === pref) s += Number(e.amount || 0); });
+      return s;
+    }
+
     function renderClassic() {
-      const { received, pending } = classicTotals();
+      if (!document.getElementById('cbar-green')) return;
+      const { pending } = classicTotals();
+      const received = genMonthTotal('andres');
       const total = received + pending;
       const pctGreen = Math.min((received / GOAL_CLASSIC) * 100, 100);
       const pctGray  = Math.min((pending  / GOAL_CLASSIC) * 100, Math.max(0, 100 - pctGreen));
@@ -709,8 +708,8 @@
       document.getElementById('c-pending').textContent  = fmt(pending) + '€';
       document.getElementById('c-left').textContent     = fmt(Math.max(0, GOAL_CLASSIC - total)) + '€';
 
-      // Indicadores 70/350/370/470 (comida, alquiler, servicios, reinversión): verde si lo cubre lo recibido, amarillo si lo cubre lo pendiente, rojo si no se llega
-      [70, 350, 370, 470].forEach(T => {
+      // Indicadores 60/340/370/470 (comida, alquiler, servicios, reinversión): verde si lo cubre lo generado del mes, amarillo si lo cubre lo pendiente, rojo si no se llega
+      [60, 340, 370, 470].forEach(T => {
         const cls = received >= T ? 's-green' : (total >= T ? 's-yellow' : 's-red');
         const mk = document.getElementById('cmark-' + T);
         const lg = document.getElementById('cleg-' + T);
@@ -724,7 +723,7 @@
       const byDay = {};
       Object.keys(classic).forEach(k => {
         const e = classic[k];
-        if (e.type === 'pending' && e.day) byDay[e.day] = (byDay[e.day] || 0) + Number(e.amount || 0);
+        if (e.type === 'pending' && e.day && Number(e.amount || 0) > 0) byDay[e.day] = (byDay[e.day] || 0) + Number(e.amount || 0);
       });
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const todayStr = ymd(today);
@@ -798,7 +797,6 @@
       document.getElementById('genin-' + p.id).addEventListener('keydown', e => { if (e.key === 'Enter') addGenerated(p.id); });
     });
     TRADERS.forEach(id => { document.getElementById('trin-' + id).addEventListener('keydown', e => { if (e.key === 'Enter') setTrading(id); }); });
-    document.getElementById('cin-received').addEventListener('keydown', e => { if (e.key === 'Enter') addClassic('received', 1); });
     document.getElementById('cin-pending').addEventListener('keydown', e => { if (e.key === 'Enter') addClassic('pending', 1); });
 
     function refreshAll(silent) { fetchMoves(silent); fetchGoals(); fetchGenerated(); fetchTrading(); fetchClassic(true); }
