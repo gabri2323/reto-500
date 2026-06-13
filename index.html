@@ -585,7 +585,18 @@
           body: JSON.stringify({ amount: Math.round(amount * 100) / 100, day: ymd(new Date()) })
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        input.value = ''; await fetchGenerated();
+        // En Andrés, lo generado también descuenta del dinero pendiente (sin bajar de 0)
+        if (id === 'andres') {
+          const { pending } = classicTotals();
+          const sub = Math.round(Math.min(Math.round(amount * 100) / 100, Math.max(0, pending)) * 100) / 100;
+          if (sub > 0) {
+            await fetch(DB + '/classic.json', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'pending', amount: -sub })
+            });
+          }
+        }
+        input.value = ''; await fetchGenerated(); await fetchClassic(true);
         setStatus('Generado guardado ✓', 'ok'); setTimeout(() => setStatus('', ''), 1200);
       } catch (e) { setStatus('⚠ No se pudo guardar', 'err'); }
       finally { busy[bkey] = false; }
