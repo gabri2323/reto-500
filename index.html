@@ -744,7 +744,9 @@
       days.reverse();
       const grid = document.getElementById('day-grid');
       if (!grid) return;
-      grid.innerHTML = days.map(ds => {
+      // Solo se muestran días con ingreso (>0) o el día de hoy; los días vacíos no generan casilla
+      const shown = days.filter(ds => (byDay[ds] || 0) > 0 || ds === todayStr);
+      grid.innerHTML = (shown.length ? shown : [todayStr]).map(ds => {
         const label = dayLabel(ds);
         const amt = byDay[ds] || 0;
         const isToday = ds === todayStr;
