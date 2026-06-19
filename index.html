@@ -340,16 +340,18 @@
                   <div class="cbar-green" id="cbar-green"></div>
                   <div class="cbar-gray"  id="cbar-gray"></div>
                 </div>
-                <div class="cbar-mark" id="cmark-60" style="left:12%" title="60€ · comida"></div>
-                <div class="cbar-mark" id="cmark-340" style="left:68%" title="340€ · alquiler"></div>
+                <div class="cbar-mark" id="cmark-30" style="left:6%" title="30€ · compra 1"></div>
+                <div class="cbar-mark" id="cmark-310" style="left:62%" title="310€ · alquiler"></div>
+                <div class="cbar-mark" id="cmark-340" style="left:68%" title="340€ · compra 2"></div>
                 <div class="cbar-mark" id="cmark-370" style="left:74%" title="370€ · servicios"></div>
                 <div class="cbar-mark" id="cmark-470" style="left:94%" title="470€ · reinversión"></div>
               </div>
               <span class="cbar-pct-out" id="cbar-pct">0%</span>
             </div>
             <div class="cbar-legend">
-              <span id="cleg-60">● 60€ comida</span>
-              <span id="cleg-340">● 340€ alquiler</span>
+              <span id="cleg-30">● 30€ compra 1</span>
+              <span id="cleg-310">● 310€ alquiler</span>
+              <span id="cleg-340">● 340€ compra 2</span>
               <span id="cleg-370">● 370€ servicios</span>
               <span id="cleg-470">● 470€ reinversión</span>
             </div>
@@ -720,7 +722,7 @@
       document.getElementById('c-left').textContent     = fmt(Math.max(0, GOAL_CLASSIC - total)) + '€';
 
       // Indicadores 60/340/370/470 (comida, alquiler, servicios, reinversión): verde si lo cubre lo generado del mes, amarillo si lo cubre lo pendiente, rojo si no se llega
-      [60, 340, 370, 470].forEach(T => {
+      [30, 310, 340, 370, 470].forEach(T => {
         const cls = received >= T ? 's-green' : (total >= T ? 's-yellow' : 's-red');
         const mk = document.getElementById('cmark-' + T);
         const lg = document.getElementById('cleg-' + T);
