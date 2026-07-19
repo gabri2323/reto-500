@@ -185,6 +185,14 @@
     .shop-item .x { background: none; border: none; color: #3a3a50; cursor: pointer; font-size: 1.05rem; line-height: 1; padding: 2px 4px; }
     .shop-item .x:hover { color: #ef4444; }
     .shop-empty { font-size: .82rem; color: #3a3a50; text-align: center; padding: 12px 0; }
+    .shop-item .pr { font-size: .88rem; font-weight: 700; color: #4ade80; white-space: nowrap; flex-shrink: 0; }
+    .shop-item.done .pr { color: #6b6b80; }
+    #shop-price { flex: 0 0 84px !important; }
+    .shop-total { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-top: 1px solid #2a2a38; padding-top: 10px; }
+    .shop-total .bud { font-size: .74rem; color: #6b6b80; }
+    .shop-total .t { font-size: 1.15rem; font-weight: 800; }
+    .shop-total .t.ok { color: #4ade80; }
+    .shop-total .t.over { color: #ef4444; }
     .add-card { background: #14141c; border: 1px solid #2a2a38; border-radius: 14px; padding: 12px; min-width: 0; }
     .add-card h3 { font-size: .9rem; font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 7px; }
     .add-card .desc { font-size: .72rem; color: #6b6b80; margin-bottom: 10px; }
@@ -247,9 +255,14 @@
       </div>
       <div class="input-row">
         <input id="shop-input" type="text" maxlength="60" placeholder="Añadir alimento…">
+        <input id="shop-price" type="number" min="0" step="0.01" placeholder="€">
         <button class="btn btn-add btn-sm" onclick="addShopItem()">Añadir</button>
       </div>
       <div class="shop-list" id="shop-list"></div>
+      <div class="shop-total">
+        <span class="bud" id="shop-budget"></span>
+        <span class="t ok" id="shop-sum">0€</span>
+      </div>
     </div>
   </div>
 
@@ -712,6 +725,7 @@
     let shopping = {};
     let shopCurrent = 'compra1';
     const SHOP_NAMES = { compra1: 'Compra 1', compra2: 'Compra 2' };
+    const SHOP_BUDGET = { compra1: 30, compra2: 30 };   // presupuesto de cada compra
     const escHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     async function fetchShopping() {
@@ -745,25 +759,41 @@
       const keys = Object.keys(items).sort();
       const el = document.getElementById('shop-list'); if (!el) return;
       el.innerHTML = keys.length === 0 ? '<div class="shop-empty">Sin alimentos aún</div>' : keys.map(k => {
-        const it = items[k] || {}; const done = !!it.done;
+        const it = items[k] || {}; const done = !!it.done; const pr = Number(it.price || 0);
         return `<div class="shop-item ${done ? 'done' : ''}">
           <input class="chk" type="checkbox" ${done ? 'checked' : ''} onchange="toggleShopItem('${k}', this.checked)">
           <span class="nm">${escHtml(it.name)}</span>
+          ${pr > 0 ? `<span class="pr">${fmt(pr)}€</span>` : ''}
           <button class="x" onclick="deleteShopItem('${k}')" title="Eliminar">×</button>
         </div>`;
       }).join('');
+      // Total de la lista frente al presupuesto de esa compra
+      let total = 0;
+      keys.forEach(k => { total += Number((items[k] || {}).price || 0); });
+      total = Math.round(total * 100) / 100;
+      const bud = SHOP_BUDGET[shopCurrent] || 0;
+      const sumEl = document.getElementById('shop-sum');
+      const budEl = document.getElementById('shop-budget');
+      if (sumEl) { sumEl.textContent = fmt(total) + '€'; sumEl.className = 't ' + (bud && total > bud ? 'over' : 'ok'); }
+      if (budEl) {
+        budEl.textContent = !bud ? '' : (total > bud
+          ? 'Presupuesto ' + fmt(bud) + '€ · te pasas ' + fmt(Math.round((total - bud) * 100) / 100) + '€'
+          : 'Presupuesto ' + fmt(bud) + '€ · quedan ' + fmt(Math.round((bud - total) * 100) / 100) + '€');
+      }
     }
     async function addShopItem() {
       const input = document.getElementById('shop-input');
+      const priceEl = document.getElementById('shop-price');
       const name = (input.value || '').trim();
       if (!name) { shake(input); return; }
+      const price = Math.max(0, Math.round((parseFloat(priceEl.value) || 0) * 100) / 100);
       try {
         const res = await fetch(DB + '/shopping/' + shopCurrent + '.json', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, done: false })
+          body: JSON.stringify({ name, price, done: false })
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        input.value = ''; await fetchShopping(); input.focus();
+        input.value = ''; priceEl.value = ''; await fetchShopping(); input.focus();
       } catch (e) { setStatus('⚠ No se pudo guardar', 'err'); }
     }
     async function toggleShopItem(key, done) {
@@ -930,6 +960,7 @@
     document.getElementById('cin-pending').addEventListener('keydown', e => { if (e.key === 'Enter') addClassic('pending', 1); });
 
     document.getElementById('shop-input').addEventListener('keydown', e => { if (e.key === 'Enter') addShopItem(); });
+    document.getElementById('shop-price').addEventListener('keydown', e => { if (e.key === 'Enter') addShopItem(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShop(); });
 
     function refreshAll(silent) { fetchMoves(silent); fetchGoals(); fetchGenerated(); fetchTrading(); fetchClassic(true); fetchShopping(); }
